@@ -26,8 +26,8 @@ function resolveConnectionUrl(url: string): string {
     const refMatch = u.hostname.match(/^db\.([^.]+)\.supabase\.co$/);
     if (refMatch) {
       const ref = refMatch[1];
-      u.hostname = `aws-0-us-east-1.pooler.supabase.com`;
-      u.port = "5432";
+      u.hostname = `aws-1-ap-northeast-1.pooler.supabase.com`;
+      u.port = "6543";
       u.username = `postgres.${ref}`;
       return u.toString();
     }
