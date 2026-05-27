@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Momenta</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-D0y5WDmB.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Ce5c5li2.css">
+    <link rel="stylesheet" href="/assets/momenta-romantic-bg.css">
+    <script defer src="/assets/momenta-romantic-bg.js"></script>
+
+    <style>
+      /* ══════════════════════════════════════
+         HERO — compact so everything is visible
+         on first load (no scroll needed)
+      ══════════════════════════════════════ */
+      h1.font-serif,
+      h1[class*="font-serif"] {
+        font-size: clamp(1.75rem, 3vw, 3rem) !important;
+        line-height: 1.10 !important;
+        margin-bottom: 0.5rem !important;
+      }
+
+      /* smaller description to keep hero tight */
+      h1.font-serif ~ p,
+      h1[class*="font-serif"] ~ p {
+        font-size: 0.9rem !important;
+        line-height: 1.65 !important;
+        margin-bottom: 1rem !important;
+      }
+
+      /* tighten hero vertical padding */
+      [class*="pt-10"][class*="pb-16"] {
+        padding-top: 1.5rem !important;
+        padding-bottom: 2rem !important;
+      }
+
+      /* poster fills its column */
+      img[alt="Personalized Surprise Websites"] {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+      }
+
+      /* ══════════════════════════════════════
+         PAGE-WIDE PARTICLE CANVAS (behind all)
+      ══════════════════════════════════════ */
+      #m-page-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ══════════════════════════════════════
+         FLOATING GLOWING HEARTS
+      ══════════════════════════════════════ */
+      .m-float-heart {
+        position: fixed;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        animation: m-rise linear infinite;
+        font-size: 1rem;
+        color: hsl(340 80% 68%);
+        filter: drop-shadow(0 0 6px hsl(340 80% 65% / 0.9))
+                drop-shadow(0 0 14px hsl(340 70% 55% / 0.6));
+      }
+      @keyframes m-rise {
+        0%   { transform: translateY(0) scale(1)     rotate(0deg);   opacity: 0; }
+        10%  { opacity: 0.85; }
+        80%  { opacity: 0.5; }
+        100% { transform: translateY(-110vh) scale(0.6) rotate(20deg); opacity: 0; }
+      }
+
+      /* ══════════════════════════════════════
+         HEART SECTION — upright 3-D canvas
+      ══════════════════════════════════════ */
+      #m-heart-outer {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        width: 100%;
+        overflow: hidden;
+        z-index: 1;
+      }
+      #m-heart-glow {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse 60% 55% at 50% 48%,
+          hsl(340 72% 55% / 0.20) 0%, transparent 68%);
+      }
+      #m-heart-canvas {
+        display: block;
+        position: relative;
+        z-index: 2;
+      }
+      #m-heart-label {
+        position: relative;
+        z-index: 3;
+        margin-top: 8px;
+        color: hsl(340, 76%, 70%);
+        font-size: 10px;
+        letter-spacing: 0.26em;
+        font-weight: 600;
+        text-transform: uppercase;
+        user-select: none;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      /* ══════════════════════════════════════
+         PRICE PLUS TAG
+      ══════════════════════════════════════ */
+      .m-price-plus {
+        color: hsl(340, 72%, 68%);
+        font-weight: 700;
+      }
+      .m-price-note {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: hsl(340, 40%, 70%);
+        letter-spacing: 0.04em;
+        margin-top: 4px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        opacity: 0.85;
+      }
+
+      /* ══════════════════════════════════════
+         MARQUEE — extra gap below hero
+      ══════════════════════════════════════ */
+      #m-marquee-spacer {
+        height: 0;
+      }
+
+      .overflow-hidden.border-y {
+        margin-top: 6rem !important;
+      }
+
+      /* ══════════════════════════════════════
+         SCROLL-DOWN INDICATOR
+      ══════════════════════════════════════ */
+      #m-scroll-down {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        z-index: 10;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+      }
+      #m-scroll-down span {
+        display: block;
+        font-size: 9px;
+        letter-spacing: 0.22em;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: hsl(340, 60%, 72%);
+        font-family: "Plus Jakarta Sans", sans-serif;
+        opacity: 0.8;
+      }
+      #m-scroll-down svg {
+        animation: m-bounce 1.6s ease-in-out infinite;
+        filter: drop-shadow(0 0 5px hsl(340 75% 65% / 0.8));
+      }
+      @keyframes m-bounce {
+        0%, 100% { transform: translateY(0);    opacity: 1; }
+        50%       { transform: translateY(8px);  opacity: 0.55; }
+      }
+      #m-scroll-down.m-hidden { opacity: 0; }
+
+      /* ══════════════════════════════════════
+         OTP MODAL
+      ══════════════════════════════════════ */
+      #m-otp-overlay {
+        position: fixed;
+        inset: 0;
+        background: hsl(293 38% 4% / 0.88);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: m-fade-in 0.3s ease;
+      }
+      @keyframes m-fade-in {
+        from { opacity: 0; transform: scale(0.96); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      #m-otp-card {
+        background: linear-gradient(145deg, hsl(293 38% 10%), hsl(293 38% 8%));
+        border: 1px solid hsl(340 60% 45% / 0.35);
+        border-radius: 1.5rem;
+        padding: 2.2rem 2rem 1.8rem;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 0 60px hsl(340 70% 45% / 0.18), 0 20px 60px hsl(0 0% 0% / 0.5);
+        position: relative;
+      }
+      #m-otp-close {
+        position: absolute;
+        top: 14px; right: 16px;
+        background: none;
+        border: none;
+        color: hsl(340 40% 60%);
+        font-size: 1.3rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: color 0.2s;
+      }
+      #m-otp-close:hover { color: hsl(340 80% 75%); }
+      #m-otp-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      #m-otp-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.3rem;
+      }
+      #m-otp-sub {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.8rem;
+        color: hsl(340 40% 68%);
+        margin-bottom: 1.4rem;
+        line-height: 1.5;
+      }
+      #m-otp-digits {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      .m-otp-digit {
+        width: 48px;
+        height: 58px;
+        background: hsl(293 38% 14%);
+        border: 1.5px solid hsl(340 60% 50% / 0.5);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Playfair Display", serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: hsl(340 80% 78%);
+        box-shadow: 0 0 12px hsl(340 70% 55% / 0.15);
+      }
+      #m-otp-copy {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: hsl(340 65% 58%);
+        color: #fff;
+        border: none;
+        border-radius: 2rem;
+        padding: 0.6rem 1.6rem;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        margin-bottom: 1.2rem;
+      }
+      #m-otp-copy:hover   { background: hsl(340 65% 52%); }
+      #m-otp-copy:active  { transform: scale(0.97); }
+      #m-otp-note {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.72rem;
+        color: hsl(340 30% 60%);
+        line-height: 1.55;
+        border-top: 1px solid hsl(340 30% 30% / 0.4);
+        padding-top: 0.9rem;
+        margin-top: 0.2rem;
+      }
+      #m-otp-note strong { color: hsl(340 60% 72%); }
+      @media (max-width: 480px) {
+        .m-otp-digit { width: 40px; height: 50px; font-size: 1.45rem; }
+        #m-otp-digits { gap: 0.35rem; }
+      }
+
+      /* ══════════════════════════════════════
+         RESPONSIVE
+      ══════════════════════════════════════ */
+      @media (max-width: 639px) {
+        h1.font-serif,
+        h1[class*="font-serif"] {
+          font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
+        }
+        #m-heart-outer { min-height: 155px; }
+      }
+      @media (min-width: 640px) and (max-width: 1023px) {
+        h1.font-serif,
+        h1[class*="font-serif"] {
+          font-size: clamp(2rem, 4vw, 2.6rem) !important;
+        }
+      }
+    </style>
+
+    <script>
+/* ================================================================
+   Momenta — v3 full enhancement
+   1. Hero compact: poster expanded, text fits in one viewport
+   2. Heart sim: TRUE upright ♥ (2-D heart implicit + Z depth)
+      → rotates around Y-axis only, never tips over
+   3. Page particles: 70 dots drifting across the whole page
+   4. Floating glow hearts: 18 hearts rising slowly
+================================================================ */
+(function () {
+  'use strict';
+
+  /* ──────────────────────────────────────────────
+     PART A — Hero poster expand (runs once)
+  ────────────────────────────────────────────── */
+  var heroFixed = false;
+  function fixHero() {
+    if (heroFixed) return;
+    var img = document.querySelector('img[alt="Personalized Surprise Websites"]');
+    if (!img) return;
+    var card = img.closest('[class*="rounded-3xl"]') ||
+               img.closest('[class*="rounded-2xl"]') ||
+               img.parentElement;
+    if (card) { card.style.maxWidth = 'min(97vw,460px)'; card.style.width = '100%'; }
+    if (card && card.parentElement) {
+      card.parentElement.style.maxWidth = 'min(97vw,460px)';
+      card.parentElement.style.width = '100%';
+    }
+    heroFixed = true;
+  }
+
+  /* ──────────────────────────────────────────────
+     PART A2 — Price patch: add "+" and tagline
+     Finds every element whose text is exactly a
+     rupee price (₹NNN) and appends "+" plus a
+     "Depending upon your needs" note below it.
+  ────────────────────────────────────────────── */
+  var pricesFixed = false;
+  function fixPrices() {
+    if (pricesFixed) return;
+
+    /* Walk all elements, find those whose trimmed text is a price like ₹149 */
+    var all = document.querySelectorAll('p, span, div, h2, h3');
+    var found = 0;
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      /* Already patched? skip */
+      if (el.dataset.mPricePatched) continue;
+      var txt = el.textContent.trim();
+      /* Match ₹ followed by 2-4 digits, nothing else (the price element itself) */
+      if (!/^\u20b9\d{2,4}$/.test(txt)) continue;
+      /* Make sure it's inside the packages/plans section */
+      var inPlans = false;
+      var anc = el.parentElement;
+      for (var k = 0; k < 10 && anc; k++, anc = anc.parentElement) {
+        if (anc.textContent.indexOf('PACKAGES') >= 0 ||
+            anc.textContent.indexOf('Choose your experience') >= 0) {
+          inPlans = true; break;
+        }
+      }
+      if (!inPlans) continue;
+
+      el.dataset.mPricePatched = '1';
+      found++;
+
+      /* Append the "+" as a styled span inside the price element */
+      var plusSpan = document.createElement('span');
+      plusSpan.className = 'm-price-plus';
+      plusSpan.textContent = '+';
+      el.appendChild(plusSpan);
+
+      /* Insert the note element immediately after the price element */
+      var note = document.createElement('span');
+      note.className = 'm-price-note';
+      note.textContent = 'Depending upon your needs';
+      if (el.nextSibling) {
+        el.parentNode.insertBefore(note, el.nextSibling);
+      } else {
+        el.parentNode.appendChild(note);
+      }
+    }
+
+    if (found >= 3) pricesFixed = true; /* all 3 prices patched */
+  }
+
+  /* ──────────────────────────────────────────────
+     PART A3 — Marquee spacer: inserts a gap div
+     above the marquee ticker bar so it sits lower
+  ────────────────────────────────────────────── */
+  var marqueeFixed = false;
+  function fixMarquee() {
+    if (marqueeFixed) return;
+    /* The marquee is a section/div that contains the scrolling ticker text */
+    var all = document.querySelectorAll('div, section');
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      var txt = el.textContent;
+      if (txt.indexOf('100% PERSONALISED') >= 0 &&
+          txt.indexOf('MADE WITH LOVE') >= 0 &&
+          el.children.length <= 3) {
+        /* Only patch the outermost matching wrapper */
+        if (el.dataset.mMarqueePatched) break;
+        el.dataset.mMarqueePatched = '1';
+        el.style.marginTop = '0';
+        marqueeFixed = true;
+        break;
+      }
+    }
+  }
+
+  /* ──────────────────────────────────────────────
+     PART A4 — Scroll-down bouncing indicator
+     Attaches inside the hero section, hides on scroll
+  ────────────────────────────────────────────── */
+  var scrollIndDone = false;
+  function addScrollIndicator() {
+    if (scrollIndDone) return;
+    /* Find the hero section — the one that contains the h1 */
+    var hero = null;
+    var h1s = document.querySelectorAll('h1');
+    for (var i = 0; i < h1s.length; i++) {
+      var sec = h1s[i].closest('section') || h1s[i].closest('[class*="min-h"]') ||
+                h1s[i].parentElement;
+      if (sec) { hero = sec; break; }
+    }
+    if (!hero) return;
+
+    /* The hero wrapper needs relative positioning for absolute child */
+    hero.style.position = 'relative';
+
+    var ind = document.createElement('div');
+    ind.id = 'm-scroll-down';
+    ind.innerHTML =
+      '<span>Scroll</span>' +
+      '<svg width="22" height="22" viewBox="0 0 22 22" fill="none">' +
+        '<path d="M5 8l6 6 6-6" stroke="hsl(340,75%,68%)" stroke-width="2.2"' +
+              ' stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
+    hero.appendChild(ind);
+
+    /* Hide once user scrolls past ~100px */
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 90) {
+        ind.classList.add('m-hidden');
+      } else {
+        ind.classList.remove('m-hidden');
+      }
+    }, { passive: true });
+
+    scrollIndDone = true;
+  }
+
+  /* ──────────────────────────────────────────────
+     PART B — Page-wide floating particle canvas
+     Enhanced: 3 layers — tiny drift dots, mid
+     sparkles, and slow large glows
+  ────────────────────────────────────────────── */
+  function startPageParticles() {
+    var pc = document.createElement('canvas');
+    pc.id = 'm-page-canvas';
+    document.body.prepend(pc);
+    var ctx = pc.getContext('2d');
+
+    var W, H;
+
+    /* Layer 1: tiny drifting dots (upward) */
+    var dots = [];
+    function randomDot(spawnBottom) {
+      return {
+        x: Math.random() * (W || window.innerWidth),
+        y: spawnBottom ? (H || window.innerHeight) + 10 : Math.random() * (H || window.innerHeight),
+        vy: -(0.18 + Math.random() * 0.50),
+        vx: (Math.random() - 0.5) * 0.22,
+        r:  0.6 + Math.random() * 1.8,
+        hue:   328 + Math.random() * 28,
+        light: 55 + Math.random() * 28,
+        alpha: 0.15 + Math.random() * 0.40,
+        phase: Math.random() * 6.28,
+        type: 'dot',
+      };
+    }
+
+    /* Layer 2: mid-size sparkle stars (drift slowly, twinkle) */
+    function randomSparkle(spawnBottom) {
+      return {
+        x: Math.random() * (W || window.innerWidth),
+        y: spawnBottom ? (H || window.innerHeight) + 20 : Math.random() * (H || window.innerHeight),
+        vy: -(0.08 + Math.random() * 0.22),
+        vx: (Math.random() - 0.5) * 0.14,
+        r:  2.5 + Math.random() * 3.5,
+        hue:   335 + Math.random() * 20,
+        light: 68 + Math.random() * 18,
+        alpha: 0.10 + Math.random() * 0.25,
+        phase: Math.random() * 6.28,
+        twinkleSpeed: 0.6 + Math.random() * 1.2,
+        type: 'sparkle',
+      };
+    }
+
+    /* Layer 3: large slow-moving glow orbs */
+    function randomOrb(spawnBottom) {
+      return {
+        x: Math.random() * (W || window.innerWidth),
+        y: spawnBottom ? (H || window.innerHeight) + 40 : Math.random() * (H || window.innerHeight),
+        vy: -(0.04 + Math.random() * 0.10),
+        vx: (Math.random() - 0.5) * 0.08,
+        r:  8 + Math.random() * 14,
+        hue:   338 + Math.random() * 15,
+        light: 60 + Math.random() * 20,
+        alpha: 0.04 + Math.random() * 0.08,
+        phase: Math.random() * 6.28,
+        type: 'orb',
+      };
+    }
+
+    function resize() {
+      W = pc.width  = window.innerWidth;
+      H = pc.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    /* Populate all layers */
+    for (var i = 0; i < 90; i++)  dots.push(randomDot(false));
+    for (var i = 0; i < 35; i++)  dots.push(randomSparkle(false));
+    for (var i = 0; i < 18; i++)  dots.push(randomOrb(false));
+
+    (function tick() {
+      requestAnimationFrame(tick);
+      ctx.clearRect(0, 0, W, H);
+      var t = Date.now() * 0.001;
+
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        d.x += d.vx + Math.sin(t * 0.35 + d.phase) * 0.12;
+        d.y += d.vy;
+
+        /* Respawn at bottom when off the top */
+        if (d.y < -50) {
+          if (d.type === 'dot')     dots[i] = randomDot(true);
+          else if (d.type === 'sparkle') dots[i] = randomSparkle(true);
+          else                      dots[i] = randomOrb(true);
+          continue;
+        }
+
+        var a = d.alpha;
+        if (d.type === 'sparkle') {
+          /* Twinkle effect */
+          a *= 0.55 + 0.45 * Math.sin(t * d.twinkleSpeed + d.phase);
+        }
+
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, 6.2832);
+        ctx.fillStyle = 'hsla(' + d.hue + ',72%,' + d.light + '%,' + a.toFixed(3) + ')';
+        ctx.fill();
+
+        /* Sparkle cross-hair glint */
+        if (d.type === 'sparkle' && a > 0.12) {
+          ctx.strokeStyle = 'hsla(' + d.hue + ',80%,88%,' + (a * 0.5).toFixed(3) + ')';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(d.x - d.r * 2.2, d.y);
+          ctx.lineTo(d.x + d.r * 2.2, d.y);
+          ctx.moveTo(d.x, d.y - d.r * 2.2);
+          ctx.lineTo(d.x, d.y + d.r * 2.2);
+          ctx.stroke();
+        }
+      }
+    }());
+  }
+
+  /* ──────────────────────────────────────────────
+     PART C — Floating glowing hearts (CSS-animated)
+  ────────────────────────────────────────────── */
+  function startFloatingHearts() {
+    var HEARTS = 18;
+    var sizes  = [14, 16, 18, 20, 22, 26, 12];
+    var durations = [7, 9, 11, 13, 15, 10, 8];
+
+    for (var i = 0; i < HEARTS; i++) {
+      (function (i) {
+        var el = document.createElement('div');
+        el.className = 'm-float-heart';
+        el.textContent = '\u2665'; /* ♥ */
+        var sz  = sizes[i % sizes.length];
+        var dur = durations[i % durations.length] + Math.random() * 3;
+        var del = Math.random() * dur;
+        var leftPct = 3 + Math.random() * 94;
+        var bottom  = -10 + Math.random() * 60; /* start from various heights */
+        var hue = 330 + Math.floor(Math.random() * 25);
+        el.style.cssText = [
+          'font-size:' + sz + 'px',
+          'left:' + leftPct.toFixed(1) + '%',
+          'bottom:' + bottom + '%',
+          'color:hsl(' + hue + ',80%,68%)',
+          'filter:drop-shadow(0 0 ' + Math.round(sz*0.4) + 'px hsl(' + hue + ',80%,65%/0.9))' +
+                  ' drop-shadow(0 0 ' + Math.round(sz*0.9) + 'px hsl(' + hue + ',70%,55%/0.5))',
+          'animation-duration:' + dur.toFixed(1) + 's',
+          'animation-delay:-' + del.toFixed(1) + 's',
+        ].join(';');
+        document.body.appendChild(el);
+      }(i));
+    }
+  }
+
+  /* ──────────────────────────────────────────────
+     PART D — Upright ♥ heart particle simulation
+     Uses the 2-D heart implicit in XY plane + Z depth
+     so the heart looks like ♥ from the front and
+     rotates around Y-axis only (stays upright).
+
+     Equation: (x²+y²−1)³ ≤ x²·y³
+     Bumps at top (y>0), tip at bottom (y<0).
+  ────────────────────────────────────────────── */
+
+  /* 2-D heart test */
+  function inHeart2D(x, y) {
+    var q = x*x + y*y - 1;
+    return q*q*q - x*x*(y*y*y) <= 0;
+  }
+
+  function buildHeartParticles(N) {
+    var pts = [], tries = 0;
+    while (pts.length < N && tries < N * 35) {
+      tries++;
+      var x = (Math.random()*2 - 1) * 1.15;
+      var y = (Math.random()*2 - 1) * 1.15;
+      if (!inHeart2D(x, y)) continue;
+
+      /* Z: extrude to give 3-D depth; shell-bias toward front/back faces */
+      var zMax = 0.35;
+      var z = (Math.random()*2 - 1) * zMax;
+      /* Keep mostly surface, thin interior */
+      if (Math.abs(z) < 0.18 && Math.random() > 0.22) continue;
+
+      /* Colour: tip (low y) = deep crimson → bumps (high y) = bright pink */
+      var t = (y + 1.08) / 2.08;   /* 0 = tip, 1 = top bumps */
+      t = Math.max(0, Math.min(1, t));
+
+      var hue   = 333 + (1 - t) * 17;           /* 333–350 */
+      var sat   = 58  + t * 32;                  /* 58–90 % */
+      var light = 38  + t * 44 + Math.random()*9; /* 38–91 % */
+
+      /* bright highlight particles near surface */
+      var isBright = (x*x + y*y) > 0.55 && Math.random() < 0.14;
+      if (isBright) { sat = 88; light = Math.min(90, light + 18); }
+
+      pts.push({
+        x: x, y: y, z: z,
+        hue: hue, sat: sat, light: light,
+        baseSize: 1.1 + Math.random() * 2.6,
+        isBright: isBright,
+        twinklePhase: Math.random() * 6.2832,
+        twinkleSpeed: 0.009 + Math.random() * 0.024,
+      });
+    }
+    return pts;
+  }
+
+  function findHeartSection() {
+    var secs = document.querySelectorAll('section');
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i].textContent.indexOf('Made with love') >= 0) return secs[i];
+    }
+    return null;
+  }
+
+  var heartInjected = false;
+
+  function bootHeart(section) {
+    if (heartInjected) return;
+    heartInjected = true;
+
+    section.innerHTML = '';
+    section.removeAttribute('class');
+    section.removeAttribute('style');
+
+    var outer = document.createElement('div');
+    outer.id = 'm-heart-outer';
+    section.appendChild(outer);
+
+    var glowEl = document.createElement('div');
+    glowEl.id = 'm-heart-glow';
+    outer.appendChild(glowEl);
+
+    var canvas = document.createElement('canvas');
+    canvas.id = 'm-heart-canvas';
+    outer.appendChild(canvas);
+
+    var labelEl = document.createElement('p');
+    labelEl.id = 'm-heart-label';
+    labelEl.textContent = 'Made with love \u2665';
+    outer.appendChild(labelEl);
+
+    var ctx = canvas.getContext('2d');
+    var particles = buildHeartParticles(4000);
+
+    function resize() {
+      var rect = outer.getBoundingClientRect();
+      var side = window.innerWidth < 640
+        ? Math.min(Math.max(rect.width || 160, 140), 180)
+        : Math.min(Math.max(rect.width || 200, 170), 270);
+      canvas.width  = side;
+      canvas.height = Math.round(side * 1.08); /* slightly taller for tip */
+    }
+    resize();
+    window.addEventListener('resize', function () { resize(); });
+
+    var angleY = 0, frame = 0;
+    var FOV = 3.8;
+
+    (function draw() {
+      requestAnimationFrame(draw);
+      frame++;
+
+      /* Pure Y-axis rotation — heart stays perfectly upright */
+      angleY += 0.0042;
+
+      /* Heartbeat pulse */
+      var pulse = 1 + 0.026 * Math.sin(frame * 0.020);
+
+      var W = canvas.width, H = canvas.height;
+      var SC = W * 0.42; /* scale relative to (now smaller) canvas */
+
+      var cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+
+      ctx.clearRect(0, 0, W, H);
+
+      var proj = new Array(particles.length);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+
+        /* Y-axis rotation (no X tilt — stays upright) */
+        var rx = p.x * cosY + p.z * sinY;
+        var ry = p.y;                        /* unchanged */
+        var rz = -p.x * sinY + p.z * cosY;
+
+        var persp = FOV / (FOV + rz);
+        var twinkle = 0.78 + 0.22 * Math.sin(p.twinklePhase + frame * p.twinkleSpeed);
+
+        /* alpha: front = vivid, back = dim */
+        var alpha = Math.min(1, Math.max(0.04,
+                      (0.18 + 0.82 * (rz + 0.38) / 0.76) * twinkle));
+
+        proj[i] = {
+          sx: W * 0.500 + rx * SC * pulse * persp,
+          /* Centre the heart: the 2D heart is slightly off-centre vertically */
+          sy: H * 0.500 - ry * SC * pulse * persp,
+          depth: rz,
+          size:  p.baseSize * persp * twinkle,
+          hue: p.hue, sat: p.sat, light: p.light,
+          alpha: alpha, isBright: p.isBright,
+        };
+      }
+
+      /* Back → front depth sort for proper overlap */
+      proj.sort(function (a, b) { return a.depth - b.depth; });
+
+      for (var j = 0; j < proj.length; j++) {
+        var q = proj[j];
+        var r = Math.max(0.28, q.size);
+
+        ctx.beginPath();
+        ctx.arc(q.sx, q.sy, r, 0, 6.2832);
+        ctx.fillStyle = 'hsla(' + q.hue + ',' + q.sat + '%,' + q.light + '%,' +
+                        q.alpha.toFixed(3) + ')';
+        ctx.fill();
+
+        /* Sparkle halo on front bright particles */
+        if (q.isBright && q.depth > 0.10) {
+          ctx.beginPath();
+          ctx.arc(q.sx, q.sy, r * 3.4, 0, 6.2832);
+          ctx.fillStyle = 'hsla(' + q.hue + ',90%,93%,' +
+                          (q.alpha * 0.14).toFixed(3) + ')';
+          ctx.fill();
+        }
+        /* Soft aura on large front particles */
+        if (q.depth > 0.08 && q.size > 1.7) {
+          ctx.beginPath();
+          ctx.arc(q.sx, q.sy, r * 2.1, 0, 6.2832);
+          ctx.fillStyle = 'hsla(' + q.hue + ',78%,84%,' +
+                          (q.alpha * 0.08).toFixed(3) + ')';
+          ctx.fill();
+        }
+      }
+
+      /* Pulsing centre glow overlay */
+      var gr = W * (0.35 + 0.038 * Math.sin(frame * 0.016));
+      var cg = ctx.createRadialGradient(W*0.5, H*0.48, 0, W*0.5, H*0.48, gr);
+      cg.addColorStop(0,   'hsla(340,86%,70%,0.12)');
+      cg.addColorStop(0.5, 'hsla(340,72%,56%,0.04)');
+      cg.addColorStop(1,   'hsla(340,60%,44%,0)');
+      ctx.fillStyle = cg;
+      ctx.fillRect(0, 0, W, H);
+    }());
+  }
+
+  /* ──────────────────────────────────────────────
+     PART F — 6-digit Payment OTP system
+     generateOTP: deterministic — same token always
+       produces the same 6-digit code so admin can
+       re-verify any time by re-entering the token.
+     wireOTP: hooks the "Unlock My Payment" button
+       and shows a modal with the OTP on click.
+  ────────────────────────────────────────────── */
+
+  function generateOTP(token) {
+    /* djb2 XOR hash → stable 6-digit code */
+    var s = token.toUpperCase().replace(/\s/g, '');
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) {
+      h = ((h << 5) + h) ^ s.charCodeAt(i);
+      h = h & 0x7fffffff;
+    }
+    return String(100000 + (h % 900000));
+  }
+
+  function showOTPModal(otp) {
+    var existing = document.getElementById('m-otp-overlay');
+    if (existing) existing.remove();
+
+    var digits = otp.split('');
+
+    var overlay = document.createElement('div');
+    overlay.id = 'm-otp-overlay';
+    overlay.innerHTML =
+      '<div id="m-otp-card">' +
+        '<button id="m-otp-close" aria-label="Close">&times;</button>' +
+        '<div id="m-otp-icon">\uD83D\uDD10</div>' +
+        '<div id="m-otp-title">Your Payment Code</div>' +
+        '<div id="m-otp-sub">Save this 6-digit code. Use it to verify your payment<br>if the system does not recognise it automatically.</div>' +
+        '<div id="m-otp-digits">' +
+          digits.map(function (d) {
+            return '<div class="m-otp-digit">' + d + '</div>';
+          }).join('') +
+        '</div>' +
+        '<button id="m-otp-copy">\uD83D\uDCCB&nbsp; Copy Code</button>' +
+        '<div id="m-otp-note">' +
+          '<strong>How it works:</strong> This code is uniquely generated from your private token. ' +
+          'Contact Momenta support and share this code — they can verify your payment instantly ' +
+          'without any manual checks.' +
+          '<br><br><strong>After payment:</strong> Please log in to the customer upload portal and upload your photos and videos so we can start your project. ' +
+          '<a href="/customer-upload.html?status=advance" style="color:#fff;text-decoration:underline;font-weight:700;">Open upload portal</a>.' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    /* Close on × button */
+    document.getElementById('m-otp-close').addEventListener('click', function () {
+      overlay.remove();
+    });
+    /* Close on backdrop click */
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.remove();
+    });
+
+    /* Copy button */
+    document.getElementById('m-otp-copy').addEventListener('click', function () {
+      var btn = this;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(otp).then(function () {
+          btn.textContent = '\u2713 Copied!';
+          setTimeout(function () { btn.innerHTML = '\uD83D\uDCCB\u00A0 Copy Code'; }, 2000);
+        });
+      } else {
+        /* Fallback */
+        var ta = document.createElement('textarea');
+        ta.value = otp;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        btn.textContent = '\u2713 Copied!';
+        setTimeout(function () { btn.innerHTML = '\uD83D\uDCCB\u00A0 Copy Code'; }, 2000);
+      }
+    });
+  }
+
+  var otpWired = false;
+  function wireOTP() {
+    if (otpWired) return;
+
+    /* Find "Unlock My Payment" button */
+    var btn = null;
+    var btns = document.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].textContent.trim().indexOf('Unlock My Payment') >= 0) {
+        btn = btns[i]; break;
+      }
+    }
+    if (!btn) return;
+
+    /* Find token input (first text/password input on the page) */
+    var inp = document.querySelector('input[type="text"], input[type="password"], input:not([type="submit"]):not([type="button"]):not([type="checkbox"])');
+
+    btn.addEventListener('click', function () {
+      var token = (inp ? inp.value : '').trim();
+      if (!token) return;
+      var otp = generateOTP(token);
+      /* Short delay so React can process first — then show OTP */
+      setTimeout(function () { showOTPModal(otp); }, 700);
+    });
+
+    otpWired = true;
+  }
+
+  /* ──────────────────────────────────────────────
+     PART E — Polling: waits for React to mount
+  ────────────────────────────────────────────── */
+  var bgStarted = false;
+
+  function poll() {
+    /* Start background effects once body is ready */
+    if (!bgStarted && document.body) {
+      bgStarted = true;
+      startPageParticles();
+      startFloatingHearts();
+    }
+
+    fixHero();
+    fixPrices();
+    fixMarquee();
+    addScrollIndicator();
+    wireOTP();
+
+    if (!heartInjected) {
+      var s = findHeartSection();
+      if (s) {
+        bootHeart(s);
+      } else {
+        requestAnimationFrame(poll);
+        return;
+      }
+    }
+    /* Keep polling until all patches applied */
+    if (!heroFixed || !pricesFixed || !marqueeFixed || !scrollIndDone || !otpWired) requestAnimationFrame(poll);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { requestAnimationFrame(poll); });
+  } else {
+    requestAnimationFrame(poll);
+  }
+}());
+    </script>
+
+    <script>
+/* ================================================================
+   Momenta — Unified Admin Toolkit
+   • Floating "Use Fingerprint" button on the login page
+   • Floating gear panel on the dashboard with:
+       – Register / use fingerprint
+       – Change password
+   Uses position:fixed so React re-renders cannot remove it.
+   Uses setInterval so state changes are always picked up.
+================================================================ */
+(function () {
+  'use strict';
+
+  /* ============================================================
+     UNIFIED ADMIN TOOLKIT — position:fixed, setInterval-based
+     Works regardless of React re-renders or navigation.
+
+     • NOT logged in + login form visible → floating fingerprint login button
+     • Logged in → floating ⚙ gear at bottom-right with:
+         – Register / use fingerprint
+         – Change password
+  ============================================================ */
+  var STORAGE_KEY      = 'momenta_admin_session';
+  var fpRegistered     = false;
+  var requireFp        = false;   // mirrors server setting
+  var lastState        = '';      // 'login' | 'dashboard' | ''
+  var PANEL_ID         = 'm-atk-panel';
+  var FP_BTN_ID        = 'm-atk-fp-float';
+  var GEAR_ID          = 'm-atk-gear';
+  var LOGIN_OVERLAY_ID = 'm-atk-login-overlay';
+
+  /* ── helpers ──────────────────────────────────────────────── */
+  function b64urlToUint8(str) {
+    var b64 = str.replace(/-/g,'+').replace(/_/g,'/');
+    var bin = atob(b64);
+    var arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr;
+  }
+
+  function uint8ToB64url(arr) {
+    var bin = '';
+    var bytes = new Uint8Array(arr);
+    for (var i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
+  function getToken() {
+    return localStorage.getItem(STORAGE_KEY);
+  }
+
+  function setToken(t) {
+    localStorage.setItem(STORAGE_KEY, t);
+  }
+
+  /* ── refresh fingerprint + security status from server ──── */
+  function checkFpStatus() {
+    fetch('/api/admin/webauthn/status')
+      .then(function(r){ return r.json(); })
+      .then(function(d){ fpRegistered = d.registered; })
+      .catch(function(){});
+  }
+
+  function checkSecurity() {
+    fetch('/api/admin/security')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        requireFp = !!d.requireFingerprint;
+        fpRegistered = fpRegistered || !!d.fingerprintRegistered;
+        syncToggleState();
+        syncLoginOverlay();
+      })
+      .catch(function(){});
+  }
+
+  /* ── inject global styles once ───────────────────────────── */
+  var stylesInjected = false;
+  function injectStyles() {
+    if (stylesInjected) return;
+    stylesInjected = true;
+    var s = document.createElement('style');
+    s.textContent = [
+      /* ── gear button ── */
+      '#m-atk-gear {',
+      '  position: fixed; bottom: 24px; right: 24px; z-index: 99999;',
+      '  width: 52px; height: 52px; border-radius: 50%;',
+      '  background: hsl(340 65% 50%);',
+      '  border: none; cursor: pointer;',
+      '  font-size: 1.3rem; display: flex; align-items: center; justify-content: center;',
+      '  box-shadow: 0 4px 20px hsl(340 70% 40% / 0.5);',
+      '  transition: transform 0.2s, background 0.2s;',
+      '}',
+      '#m-atk-gear:hover { transform: scale(1.1); background: hsl(340 65% 44%); }',
+      /* ── floating panel ── */
+      '#m-atk-panel {',
+      '  position: fixed; bottom: 88px; right: 24px; z-index: 99998;',
+      '  width: 300px;',
+      '  background: hsl(293 38% 9%);',
+      '  border: 1px solid hsl(340 50% 38% / 0.55);',
+      '  border-radius: 16px;',
+      '  padding: 1.3rem 1.4rem 1.2rem;',
+      '  box-shadow: 0 8px 40px hsl(0 0% 0% / 0.55);',
+      '  display: none;',
+      '}',
+      '#m-atk-panel.open { display: block; }',
+      '#m-atk-panel-title {',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.78rem; font-weight: 700;',
+      '  color: hsl(340 55% 65%);',
+      '  letter-spacing: 0.10em; text-transform: uppercase;',
+      '  margin-bottom: 1rem;',
+      '}',
+      /* ── section divider ── */
+      '.m-atk-section {',
+      '  border-top: 1px solid hsl(340 30% 28% / 0.5);',
+      '  padding-top: 0.85rem; margin-top: 0.85rem;',
+      '}',
+      '.m-atk-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }',
+      '.m-atk-sh {',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.73rem; font-weight: 700;',
+      '  color: hsl(340 40% 60%);',
+      '  letter-spacing: 0.07em; text-transform: uppercase;',
+      '  margin-bottom: 0.55rem;',
+      '}',
+      /* ── shared btn ── */
+      '.m-atk-btn {',
+      '  display: flex; align-items: center; justify-content: center; gap: 7px;',
+      '  width: 100%; padding: 9px 12px;',
+      '  background: hsl(340 55% 20% / 0.5);',
+      '  border: 1.5px solid hsl(340 55% 45% / 0.55);',
+      '  border-radius: 8px; cursor: pointer;',
+      '  color: hsl(340 70% 74%);',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.82rem; font-weight: 600;',
+      '  transition: background 0.2s; margin-top: 6px;',
+      '}',
+      '.m-atk-btn:first-of-type { margin-top: 0; }',
+      '.m-atk-btn:hover { background: hsl(340 55% 28% / 0.6); }',
+      '.m-atk-btn:disabled { opacity: 0.45; cursor: not-allowed; }',
+      /* ── input / label ── */
+      '.m-atk-label {',
+      '  display: block;',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.7rem; color: hsl(340 28% 58%);',
+      '  margin-bottom: 3px; margin-top: 8px;',
+      '}',
+      '.m-atk-input {',
+      '  width: 100%; box-sizing: border-box;',
+      '  background: hsl(293 38% 13%);',
+      '  border: 1.5px solid hsl(340 38% 33% / 0.6);',
+      '  border-radius: 7px; padding: 7px 9px;',
+      '  color: #fff;',
+      '  font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.8rem;',
+      '  outline: none; transition: border-color 0.2s;',
+      '}',
+      '.m-atk-input:focus { border-color: hsl(340 60% 52%); }',
+      /* ── message ── */
+      '.m-atk-msg {',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.72rem; text-align: center;',
+      '  margin-top: 5px; min-height: 1em;',
+      '}',
+      '.m-atk-msg.ok { color: hsl(140 55% 52%); }',
+      '.m-atk-msg.err { color: hsl(0 65% 58%); }',
+      /* ── floating fingerprint login button (login page) ── */
+      '#m-atk-fp-float {',
+      '  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);',
+      '  z-index: 99999;',
+      '  display: flex; align-items: center; gap: 8px;',
+      '  padding: 11px 28px;',
+      '  background: hsl(293 38% 9%);',
+      '  border: 1.5px solid hsl(340 55% 48% / 0.7);',
+      '  border-radius: 999px; cursor: pointer;',
+      '  color: hsl(340 70% 74%);',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.88rem; font-weight: 600;',
+      '  box-shadow: 0 4px 24px hsl(340 60% 35% / 0.35);',
+      '  transition: background 0.2s, transform 0.15s;',
+      '}',
+      '#m-atk-fp-float:hover { background: hsl(293 38% 13%); transform: translateX(-50%) scale(1.03); }',
+      '#m-atk-fp-float:disabled { opacity: 0.45; cursor: not-allowed; }',
+      '#m-atk-fp-msg {',
+      '  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);',
+      '  z-index: 99999;',
+      '  font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.75rem;',
+      '  background: hsl(293 38% 9%); padding: 5px 14px; border-radius: 999px;',
+      '  border: 1px solid hsl(340 30% 30% / 0.5);',
+      '}',
+      '#m-atk-fp-msg.ok { color: hsl(140 55% 52%); }',
+      '#m-atk-fp-msg.err { color: hsl(0 65% 58%); }',
+      /* ── require-fingerprint toggle row ── */
+      '.m-atk-toggle-row {',
+      '  display: flex; align-items: center; justify-content: space-between;',
+      '  margin-top: 10px;',
+      '}',
+      '.m-atk-toggle-label {',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.78rem; color: hsl(340 35% 68%);',
+      '}',
+      '.m-atk-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }',
+      '.m-atk-switch input { opacity: 0; width: 0; height: 0; }',
+      '.m-atk-slider {',
+      '  position: absolute; inset: 0; border-radius: 22px;',
+      '  background: hsl(340 30% 28%); cursor: pointer;',
+      '  transition: background 0.25s;',
+      '}',
+      '.m-atk-slider:before {',
+      '  content: ""; position: absolute;',
+      '  width: 16px; height: 16px; border-radius: 50%;',
+      '  left: 3px; bottom: 3px;',
+      '  background: hsl(340 30% 65%);',
+      '  transition: transform 0.25s, background 0.25s;',
+      '}',
+      '.m-atk-switch input:checked + .m-atk-slider { background: hsl(340 65% 46%); }',
+      '.m-atk-switch input:checked + .m-atk-slider:before { transform: translateX(16px); background: #fff; }',
+      /* ── login page "password disabled" overlay ── */
+      '#m-atk-login-overlay {',
+      '  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99990;',
+      '  display: flex; flex-direction: column; align-items: center; justify-content: center;',
+      '  pointer-events: none;',
+      '}',
+      '#m-atk-login-overlay-box {',
+      '  margin-top: 420px;',   /* push it below the login card */
+      '  background: hsl(293 38% 8% / 0.92);',
+      '  border: 1px solid hsl(340 55% 42% / 0.5);',
+      '  border-radius: 12px; padding: 10px 20px;',
+      '  font-family: "Plus Jakarta Sans", sans-serif;',
+      '  font-size: 0.8rem; color: hsl(340 60% 72%);',
+      '  text-align: center;',
+      '}',
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+  /* ── WebAuthn helpers ────────────────────────────────────── */
+  async function doRegisterFingerprint(statusEl, btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = '⏳ Starting…';
+    statusEl.textContent = '';
+    try {
+      var res = await fetch('/api/admin/webauthn/register-challenge', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Challenge failed');
+      var opts = await res.json();
+      opts.challenge = b64urlToUint8(opts.challenge);
+      opts.user.id   = b64urlToUint8(opts.user.id);
+      if (opts.excludeCredentials)
+        opts.excludeCredentials = opts.excludeCredentials.map(function(c){ return Object.assign({}, c, { id: b64urlToUint8(c.id) }); });
+
+      btnEl.textContent = '👆 Touch fingerprint sensor…';
+      var cred = await navigator.credentials.create({ publicKey: opts });
+      var body = { id: cred.id, rawId: uint8ToB64url(cred.rawId), type: cred.type,
+        response: { clientDataJSON: uint8ToB64url(cred.response.clientDataJSON),
+                    attestationObject: uint8ToB64url(cred.response.attestationObject) } };
+      if (cred.response.getTransports) body.response.transports = cred.response.getTransports();
+
+      var vr = await fetch('/api/admin/webauthn/register-verify', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!vr.ok) throw new Error((await vr.json()).error || 'Verify failed');
+      fpRegistered = true;
+      statusEl.textContent = '✓ Fingerprint registered!';
+      statusEl.className = 'm-atk-msg ok';
+      btnEl.textContent = '🖐 Register another fingerprint';
+    } catch(e) {
+      statusEl.textContent = e.name === 'NotAllowedError' ? 'Scan cancelled.' : (e.message || 'Failed');
+      statusEl.className = 'm-atk-msg err';
+      btnEl.textContent = '🖐 Register your fingerprint';
+    } finally { btnEl.disabled = false; }
+  }
+
+  async function doLoginFingerprint(msgEl, btnEl) {
+    if (!fpRegistered) {
+      msgEl.textContent = 'No fingerprint registered yet. Log in with password first, then register.';
+      msgEl.className = 'm-atk-msg err';
+      return;
+    }
+    btnEl.disabled = true;
+    btnEl.textContent = '⏳ Checking…';
+    msgEl.textContent = '';
+    try {
+      var res = await fetch('/api/admin/webauthn/login-challenge', { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json()).error || 'Challenge failed');
+      var opts = await res.json();
+      opts.challenge = b64urlToUint8(opts.challenge);
+      if (opts.allowCredentials)
+        opts.allowCredentials = opts.allowCredentials.map(function(c){ return Object.assign({}, c, { id: b64urlToUint8(c.id) }); });
+
+      btnEl.textContent = '👆 Touch fingerprint sensor…';
+      var assert = await navigator.credentials.get({ publicKey: opts });
+      var body = { id: assert.id, rawId: uint8ToB64url(assert.rawId), type: assert.type,
+        response: { clientDataJSON: uint8ToB64url(assert.response.clientDataJSON),
+                    authenticatorData: uint8ToB64url(assert.response.authenticatorData),
+                    signature: uint8ToB64url(assert.response.signature) } };
+      if (assert.response.userHandle) body.response.userHandle = uint8ToB64url(assert.response.userHandle);
+
+      var vr = await fetch('/api/admin/webauthn/login-verify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      if (!vr.ok) throw new Error((await vr.json()).error || 'Verify failed');
+      var data = await vr.json();
+      setToken(data.token);
+      msgEl.textContent = '✓ Verified! Logging in…';
+      msgEl.className = 'm-atk-msg ok';
+      setTimeout(function(){ window.location.reload(); }, 600);
+    } catch(e) {
+      msgEl.textContent = e.name === 'NotAllowedError' ? 'Scan cancelled.' : (e.message || 'Failed');
+      msgEl.className = 'm-atk-msg err';
+      btnEl.textContent = '🖐 Use Fingerprint';
+      btnEl.disabled = false;
+    }
+  }
+
+  /* ── build the dashboard gear + panel (once) ─────────────── */
+  function buildDashboardPanel() {
+    if (document.getElementById(GEAR_ID)) return;
+    injectStyles();
+
+    /* gear button */
+    var gear = document.createElement('button');
+    gear.id = GEAR_ID;
+    gear.title = 'Admin Tools';
+    gear.innerHTML = '⚙️';
+    document.body.appendChild(gear);
+
+    /* panel */
+    var panel = document.createElement('div');
+    panel.id = PANEL_ID;
+    panel.innerHTML =
+      '<div id="m-atk-panel-title">⚙️ Admin Tools</div>' +
+
+      /* ── fingerprint section ── */
+      '<div class="m-atk-section">' +
+        '<div class="m-atk-sh">🖐 Fingerprint Login</div>' +
+        '<button class="m-atk-btn" id="m-atk-reg-btn">' +
+          (fpRegistered ? '🔄 Register another fingerprint' : '🖐 Register your fingerprint') +
+        '</button>' +
+        '<div class="m-atk-msg" id="m-atk-reg-msg"></div>' +
+        '<div class="m-atk-toggle-row">' +
+          '<span class="m-atk-toggle-label">Require fingerprint to login</span>' +
+          '<label class="m-atk-switch">' +
+            '<input type="checkbox" id="m-atk-req-fp-chk"' + (requireFp ? ' checked' : '') + ' />' +
+            '<span class="m-atk-slider"></span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="m-atk-msg" id="m-atk-req-fp-msg"></div>' +
+      '</div>' +
+
+      /* ── change password section ── */
+      '<div class="m-atk-section">' +
+        '<div class="m-atk-sh">🔑 Change Password</div>' +
+        '<label class="m-atk-label">Current password</label>' +
+        '<input class="m-atk-input" id="m-atk-cp-cur" type="password" autocomplete="current-password" placeholder="Current password" />' +
+        '<label class="m-atk-label">New password</label>' +
+        '<input class="m-atk-input" id="m-atk-cp-new" type="password" autocomplete="new-password" placeholder="Min 8 characters" />' +
+        '<label class="m-atk-label">Confirm new password</label>' +
+        '<input class="m-atk-input" id="m-atk-cp-con" type="password" autocomplete="new-password" placeholder="Repeat new password" />' +
+        '<button class="m-atk-btn" id="m-atk-cp-btn" style="margin-top:10px">Update Password</button>' +
+        '<div class="m-atk-msg" id="m-atk-cp-msg"></div>' +
+      '</div>';
+
+    document.body.appendChild(panel);
+
+    /* toggle panel on gear click */
+    gear.addEventListener('click', function(e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!panel.contains(e.target) && e.target !== gear) panel.classList.remove('open');
+    });
+
+    /* register fingerprint */
+    document.getElementById('m-atk-reg-btn').addEventListener('click', function() {
+      doRegisterFingerprint(document.getElementById('m-atk-reg-msg'), this);
+    });
+
+    /* require-fingerprint toggle */
+    document.getElementById('m-atk-req-fp-chk').addEventListener('change', async function() {
+      var chk = this;
+      var msg = document.getElementById('m-atk-req-fp-msg');
+      var wantOn = chk.checked;
+      msg.textContent = ''; msg.className = 'm-atk-msg';
+      try {
+        var res = await fetch('/api/admin/security', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
+          body: JSON.stringify({ requireFingerprint: wantOn })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+          msg.textContent = data.error || 'Failed to update setting.';
+          msg.className = 'm-atk-msg err';
+          chk.checked = !wantOn; // revert
+        } else {
+          requireFp = data.requireFingerprint;
+          msg.textContent = requireFp ? '🔒 Password login is now disabled.' : '🔓 Password login re-enabled.';
+          msg.className = 'm-atk-msg ok';
+          setTimeout(function(){ msg.textContent = ''; }, 3000);
+        }
+      } catch {
+        msg.textContent = 'Network error.'; msg.className = 'm-atk-msg err';
+        chk.checked = !wantOn;
+      }
+    });
+
+    /* change password */
+    ['m-atk-cp-cur','m-atk-cp-new','m-atk-cp-con'].forEach(function(id) {
+      document.getElementById(id).addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('m-atk-cp-btn').click();
+      });
+    });
+    document.getElementById('m-atk-cp-btn').addEventListener('click', async function() {
+      var btn = this;
+      var msg = document.getElementById('m-atk-cp-msg');
+      var cur = document.getElementById('m-atk-cp-cur').value.trim();
+      var nw  = document.getElementById('m-atk-cp-new').value;
+      var con = document.getElementById('m-atk-cp-con').value;
+      msg.textContent = ''; msg.className = 'm-atk-msg';
+      if (!cur || !nw || !con) { msg.textContent = 'Fill in all fields.'; msg.className = 'm-atk-msg err'; return; }
+      if (nw.length < 8)       { msg.textContent = 'Min 8 characters.';  msg.className = 'm-atk-msg err'; return; }
+      if (nw !== con)          { msg.textContent = 'Passwords don\'t match.'; msg.className = 'm-atk-msg err'; return; }
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        var res = await fetch('/api/admin/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
+          body: JSON.stringify({ currentPassword: cur, newPassword: nw })
+        });
+        var data = await res.json();
+        if (!res.ok) { msg.textContent = data.error || 'Failed.'; msg.className = 'm-atk-msg err'; }
+        else {
+          msg.textContent = '✓ Password updated!'; msg.className = 'm-atk-msg ok';
+          document.getElementById('m-atk-cp-cur').value = '';
+          document.getElementById('m-atk-cp-new').value = '';
+          document.getElementById('m-atk-cp-con').value = '';
+        }
+      } catch { msg.textContent = 'Network error.'; msg.className = 'm-atk-msg err'; }
+      finally  { btn.disabled = false; btn.textContent = 'Update Password'; }
+    });
+  }
+
+  /* ── build the login-page fingerprint button (once) ─────── */
+  function buildLoginFpButton() {
+    if (document.getElementById(FP_BTN_ID)) return;
+    injectStyles();
+
+    var floatBtn = document.createElement('button');
+    floatBtn.id  = FP_BTN_ID;
+    floatBtn.innerHTML = '🖐 Use Fingerprint to Login';
+    document.body.appendChild(floatBtn);
+
+    var floatMsg = document.createElement('div');
+    floatMsg.id  = 'm-atk-fp-msg';
+    document.body.appendChild(floatMsg);
+
+    floatBtn.addEventListener('click', function() {
+      doLoginFingerprint(floatMsg, floatBtn);
+    });
+  }
+
+  /* ── keep toggle checkbox in sync with server state ─────── */
+  function syncToggleState() {
+    var chk = document.getElementById('m-atk-req-fp-chk');
+    if (chk) chk.checked = requireFp;
+  }
+
+  /* ── show/hide password-disabled notice on login page ───── */
+  function syncLoginOverlay() {
+    var onLoginPage = !!document.querySelector('input[autocomplete="username"]');
+    if (!onLoginPage) { removeLoginOverlay(); return; }
+
+    if (requireFp) {
+      if (!document.getElementById(LOGIN_OVERLAY_ID)) {
+        injectStyles();
+        var ov = document.createElement('div');
+        ov.id = LOGIN_OVERLAY_ID;
+        ov.innerHTML = '<div id="m-atk-login-overlay-box">🔒 Password login is disabled — use your fingerprint below</div>';
+        document.body.appendChild(ov);
+      }
+    } else {
+      removeLoginOverlay();
+    }
+  }
+
+  function removeLoginOverlay() {
+    var ov = document.getElementById(LOGIN_OVERLAY_ID);
+    if (ov) ov.remove();
+  }
+
+  /* ── remove login fp button ──────────────────────────────── */
+  function removeLoginFpButton() {
+    var b = document.getElementById(FP_BTN_ID);
+    var m = document.getElementById('m-atk-fp-msg');
+    if (b) b.remove();
+    if (m) m.remove();
+    removeLoginOverlay();
+  }
+
+  /* ── remove dashboard panel ──────────────────────────────── */
+  function removeDashboardPanel() {
+    var g = document.getElementById(GEAR_ID);
+    var p = document.getElementById(PANEL_ID);
+    if (g) g.remove();
+    if (p) p.remove();
+  }
+
+  /* ── update register button label live ───────────────────── */
+  function syncRegisterLabel() {
+    var btn = document.getElementById('m-atk-reg-btn');
+    if (!btn) return;
+    if (!btn.disabled)
+      btn.textContent = fpRegistered ? '🔄 Register another fingerprint' : '🖐 Register your fingerprint';
+  }
+
+  /* ── main tick — runs every 600 ms ──────────────────────── */
+  function tick() {
+    var token  = getToken();
+    var onLoginPage = !!document.querySelector('input[autocomplete="username"]');
+
+    if (token && !onLoginPage) {
+      /* ── dashboard state ── */
+      if (lastState !== 'dashboard') {
+        removeLoginFpButton();
+        lastState = 'dashboard';
+      }
+      buildDashboardPanel();
+      syncRegisterLabel();
+    } else if (!token && onLoginPage) {
+      /* ── login page state ── */
+      if (lastState !== 'login') {
+        removeDashboardPanel();
+        lastState = 'login';
+      }
+      buildLoginFpButton();
+      syncLoginOverlay();
+    } else {
+      /* ── homepage / other page ── */
+      if (lastState !== '') {
+        removeLoginFpButton();
+        removeDashboardPanel();
+        lastState = '';
+      }
+    }
+  }
+
+  /* ── bootstrap ───────────────────────────────────────────── */
+  checkFpStatus();
+  checkSecurity();
+  setInterval(checkFpStatus, 8000);
+  setInterval(checkSecurity, 8000);
+
+  function start() { setInterval(tick, 600); tick(); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+}());
+    </script>
+
+    <!-- Supabase Integration -->
+    <script src="/supabase-integration.js"></script>
+    <!-- Supabase Authentication -->
+    <script src="/supabase-auth.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
