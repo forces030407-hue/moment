@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momenta – Personalized Surprise Websites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: hsl(340, 80%, 68%);
+      --pink-dark: hsl(340, 80%, 55%);
+      --gold: hsl(40, 70%, 50%);
+      --bg: hsl(30, 40%, 96%);
+      --text: hsl(20, 20%, 28%);
+      --card-bg: hsl(0, 0%, 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── CANVAS BACKGROUNDS ── */
+    #m-page-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: hsl(30 40% 96% / 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid hsl(340 60% 75% / 0.25);
+    }
+    .nav-logo {
+      font-family: "Playfair Display", serif;
+      font-size: 1.6rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      text-decoration: none; color: var(--text);
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--pink); }
+    .nav-cta {
+      background: var(--pink); color: #fff !important;
+      padding: 0.55rem 1.4rem; border-radius: 2rem;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 14px hsl(340 80% 68% / 0.35);
+      transition: all 0.25s !important;
+    }
+    .nav-cta:hover { background: var(--pink-dark) !important; transform: translateY(-2px); }
+
+    /* ── GIFT BOX SECTION ── */
+    #gift-section {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6rem 1.5rem 3rem;
+      text-align: center;
+    }
+
+    #gift-canvas-wrap {
+      position: relative;
+      width: min(420px, 90vw);
+      height: min(380px, 80vw);
+      margin-bottom: 2rem;
+    }
+
+    #gift-three-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 1.5rem;
+    }
+
+    .gift-tagline {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+      background: linear-gradient(135deg, hsl(340 80% 45%), hsl(340 65% 60%));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gift-sub {
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      color: hsl(20 15% 50%); line-height: 1.7;
+      max-width: 540px; margin: 0 auto 2rem;
+    }
+    .gift-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), hsl(340 70% 60%));
+      color: #fff; border: none;
+      padding: 0.85rem 2rem; border-radius: 2rem;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 6px 20px hsl(340 80% 68% / 0.4);
+      transition: all 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 28px hsl(340 80% 68% / 0.5); }
+    .btn-outline {
+      background: transparent;
+      color: var(--pink); border: 2px solid var(--pink);
+      padding: 0.85rem 2rem; border-radius: 2rem;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.3s;
+    }
+    .btn-outline:hover { background: var(--pink); color: #fff; transform: translateY(-3px); }
+
+    /* floating hearts */
+    .m-float-heart {
+      position: fixed; pointer-events: none; z-index: 1;
+      opacity: 0; animation: m-rise linear infinite;
+      font-size: 1rem; color: var(--pink);
+      filter: drop-shadow(0 0 6px hsl(340 80% 65% / 0.9));
+    }
+    @keyframes m-rise {
+      0%   { transform: translateY(0) scale(1) rotate(0deg);   opacity: 0; }
+      10%  { opacity: 0.85; }
+      80%  { opacity: 0.5; }
+      100% { transform: translateY(-110vh) scale(0.6) rotate(20deg); opacity: 0; }
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+      position: relative; z-index: 1;
+      background: var(--pink);
+      padding: 0.9rem 0; overflow: hidden;
+      border-top: 1px solid hsl(340 80% 60%);
+      border-bottom: 1px solid hsl(340 80% 60%);
+    }
+    .marquee-track {
+      display: flex; gap: 3rem; white-space: nowrap;
+      animation: marquee-scroll 22s linear infinite;
+    }
+    .marquee-track span {
+      color: #fff; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .marquee-dot { color: hsl(340 100% 90%); font-size: 1.2rem; }
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── SECTION COMMON ── */
+    section { position: relative; z-index: 1; }
+    .section-inner { max-width: 1100px; margin: 0 auto; padding: 5rem 1.5rem; }
+    .section-label {
+      font-size: 0.75rem; letter-spacing: 0.18em; font-weight: 700;
+      text-transform: uppercase; color: var(--pink); margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700; line-height: 1.2;
+      margin-bottom: 1rem;
+      color: hsl(20, 20%, 22%);
+    }
+    .section-desc {
+      font-size: 1rem; color: hsl(20 15% 50%); max-width: 560px;
+      line-height: 1.75; margin-bottom: 3rem;
+    }
+
+    /* ── HOW IT WORKS ── */
+    #how-it-works { background: hsl(340 30% 98%); }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+    }
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid hsl(340 80% 80%);
+      border-radius: 1.2rem; padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 16px hsl(340 80% 68% / 0.08);
+      transition: all 0.3s;
+    }
+    .step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px hsl(340 80% 68% / 0.18);
+      border-color: var(--pink);
+    }
+    .step-icon { font-size: 2.4rem; margin-bottom: 1rem; }
+    .step-num {
+      display: inline-block;
+      background: var(--pink); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 0.8rem; font-weight: 700;
+      line-height: 28px; text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .step-title {
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 0.5rem; color: hsl(20 20% 22%);
+    }
+    .step-desc { font-size: 0.88rem; color: hsl(20 15% 50%); line-height: 1.65; }
+
+    /* ── PACKAGES ── */
+    #packages { background: var(--bg); }
+    .packages-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.75rem;
+    }
+    .package-card {
+      background: var(--card-bg);
+      border: 1.5px solid hsl(340 80% 80%);
+      border-radius: 1.4rem; padding: 2rem;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .package-card.popular {
+      border-color: var(--pink);
+      box-shadow: 0 8px 32px hsl(340 80% 68% / 0.2);
+    }
+    .popular-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--pink); color: #fff;
+      font-size: 0.7rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 2rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .package-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px hsl(340 80% 68% / 0.22);
+    }
+    .pkg-name {
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--pink); margin-bottom: 0.5rem;
+    }
+    .pkg-price {
+      font-family: "Playfair Display", serif;
+      font-size: 2.4rem; font-weight: 700;
+      color: hsl(20 20% 22%); margin-bottom: 0.25rem;
+    }
+    .pkg-price span { font-size: 1rem; font-weight: 500; }
+    .pkg-note {
+      font-size: 0.75rem; color: hsl(340 40% 60%);
+      margin-bottom: 1.5rem;
+    }
+    .pkg-features { list-style: none; margin-bottom: 2rem; }
+    .pkg-features li {
+      font-size: 0.9rem; color: hsl(20 15% 45%);
+      padding: 0.45rem 0;
+      border-bottom: 1px solid hsl(340 40% 90%);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .pkg-features li::before { content: "✓"; color: var(--pink); font-weight: 700; }
+
+    /* ── SAMPLES SECTION ── */
+    #samples { background: hsl(340 30% 98%); }
+    .samples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .sample-card {
+      background: var(--card-bg);
+      border: 1px solid hsl(340 80% 82%);
+      border-radius: 1.2rem; overflow: hidden;
+      box-shadow: 0 4px 16px hsl(340 80% 68% / 0.08);
+      transition: all 0.3s;
+    }
+    .sample-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 36px hsl(340 80% 68% / 0.2);
+      border-color: var(--pink);
+    }
+    .sample-media {
+      width: 100%; aspect-ratio: 16/10;
+      object-fit: cover; display: block;
+      background: hsl(340 30% 94%);
+    }
+    .sample-media.video { width: 100%; aspect-ratio: 16/10; }
+    .sample-info { padding: 1.1rem 1.25rem; }
+    .sample-category {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--pink); margin-bottom: 0.4rem;
+    }
+    .sample-title { font-size: 1rem; font-weight: 700; color: hsl(20 20% 22%); margin-bottom: 0.3rem; }
+    .sample-desc { font-size: 0.85rem; color: hsl(20 15% 52%); line-height: 1.6; }
+
+    .samples-empty {
+      text-align: center; padding: 4rem 2rem;
+      grid-column: 1/-1;
+    }
+    .samples-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .samples-empty-text { font-size: 1rem; color: hsl(20 15% 55%); }
+
+    /* ── MADE WITH LOVE ── */
+    #love-section {
+      background: linear-gradient(135deg, hsl(340 60% 96%), hsl(30 40% 96%));
+    }
+    #m-heart-outer {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 2rem 0;
+    }
+    #m-heart-canvas { display: block; border-radius: 50%; }
+    #m-heart-label {
+      margin-top: 10px; color: hsl(340 76% 70%);
+      font-size: 10px; letter-spacing: 0.26em; font-weight: 600;
+      text-transform: uppercase; user-select: none;
+    }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials { background: var(--bg); }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.75rem;
+    }
+    .testimonial-card {
+      background: var(--card-bg);
+      border: 1px solid hsl(340 80% 82%);
+      border-radius: 1.2rem; padding: 1.75rem;
+      box-shadow: 0 4px 16px hsl(340 80% 68% / 0.06);
+      transition: all 0.3s;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px hsl(340 80% 68% / 0.15);
+    }
+    .testi-stars { color: var(--pink); font-size: 1.1rem; margin-bottom: 0.75rem; }
+    .testi-text { font-size: 0.92rem; color: hsl(20 15% 45%); line-height: 1.72; margin-bottom: 1rem; font-style: italic; }
+    .testi-author { font-weight: 700; font-size: 0.9rem; color: hsl(20 20% 30%); }
+
+    /* ── PAYMENT / OTP ── */
+    #payment-section { background: hsl(340 30% 98%); }
+    .payment-inner {
+      max-width: 500px; margin: 0 auto;
+      background: var(--card-bg);
+      border: 1.5px solid hsl(340 80% 78%);
+      border-radius: 1.5rem; padding: 2.5rem;
+      box-shadow: 0 8px 32px hsl(340 80% 68% / 0.14);
+      text-align: center;
+    }
+    .payment-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .payment-inner h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 1.8rem; color: hsl(20 20% 22%); margin-bottom: 0.5rem;
+    }
+    .payment-inner p { font-size: 0.95rem; color: hsl(20 15% 52%); margin-bottom: 1.75rem; line-height: 1.65; }
+    .payment-input {
+      width: 100%; padding: 0.9rem 1.1rem;
+      border: 1.5px solid hsl(340 80% 78%);
+      border-radius: 0.75rem; font-family: inherit;
+      font-size: 1rem; color: var(--text);
+      background: hsl(340 20% 98%);
+      transition: border-color 0.2s; margin-bottom: 1rem;
+    }
+    .payment-input:focus { outline: none; border-color: var(--pink); }
+    .payment-btn {
+      width: 100%; padding: 0.9rem;
+      background: linear-gradient(135deg, var(--pink), hsl(340 70% 60%));
+      color: #fff; border: none; border-radius: 0.75rem;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 20px hsl(340 80% 68% / 0.35);
+      transition: all 0.3s;
+    }
+    .payment-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px hsl(340 80% 68% / 0.45); }
+
+    /* OTP Modal */
+    #m-otp-overlay {
+      position: fixed; inset: 0;
+      background: hsl(0 0% 0% / 0.55);
+      backdrop-filter: blur(6px);
+      z-index: 9999; display: none;
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    #m-otp-overlay.show { display: flex; }
+    #m-otp-card {
+      background: var(--card-bg);
+      border: 1.5px solid hsl(340 80% 78%);
+      border-radius: 1.5rem; padding: 2.5rem 2rem 2rem;
+      max-width: 420px; width: 100%; text-align: center;
+      box-shadow: 0 20px 60px hsl(0 0% 0% / 0.18);
+      position: relative;
+    }
+    #m-otp-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: hsl(340 40% 60%); line-height: 1;
+    }
+    #m-otp-close:hover { color: var(--pink); }
+    #m-otp-title { font-family: "Playfair Display", serif; font-size: 1.5rem; font-weight: 700; color: hsl(20 20% 22%); margin-bottom: 0.3rem; }
+    #m-otp-sub { font-size: 0.82rem; color: hsl(20 15% 52%); margin-bottom: 1.4rem; line-height: 1.55; }
+    #m-otp-digits { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.2rem; }
+    .m-otp-digit {
+      width: 50px; height: 60px;
+      background: hsl(340 30% 96%);
+      border: 1.5px solid hsl(340 60% 78%);
+      border-radius: 10px; display: flex;
+      align-items: center; justify-content: center;
+      font-family: "Playfair Display", serif;
+      font-size: 1.8rem; font-weight: 700; color: var(--pink);
+    }
+    #m-otp-copy {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--pink); color: #fff; border: none;
+      border-radius: 2rem; padding: 0.65rem 1.8rem;
+      font-family: inherit; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; margin-bottom: 1.2rem;
+    }
+    #m-otp-copy:hover { background: var(--pink-dark); }
+    #m-otp-note {
+      font-size: 0.75rem; color: hsl(20 15% 55%); line-height: 1.6;
+      border-top: 1px solid hsl(340 40% 88%); padding-top: 1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      background: hsl(20 20% 18%); color: hsl(30 20% 70%);
+      padding: 3rem 2rem; text-align: center;
+    }
+    .footer-logo {
+      font-family: "Playfair Display", serif; font-size: 1.8rem;
+      font-weight: 700; color: hsl(340 80% 78%); margin-bottom: 0.5rem;
+    }
+    .footer-tagline { font-size: 0.88rem; margin-bottom: 1.5rem; color: hsl(30 15% 60%); }
+    .footer-links { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .footer-links a { color: hsl(30 20% 65%); text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
+    .footer-links a:hover { color: hsl(340 80% 78%); }
+    .footer-copy { font-size: 0.8rem; color: hsl(20 10% 45%); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0.85rem 1rem; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .section-inner { padding: 3.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Canvas Background -->
+  <canvas id="m-page-canvas"></canvas>
+
+  <!-- Floating Hearts -->
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Momenta ♡</div>
+    <div class="nav-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#samples">Our Work</a>
+      <a href="#packages">Packages</a>
+      <a href="#payment-section">Pay</a>
+      <a href="admin.html" class="nav-cta">Admin</a>
+    </div>
+  </nav>
+
+  <!-- HERO + GIFT BOX ANIMATION -->
+  <section id="gift-section">
+    <div id="gift-canvas-wrap">
+      <canvas id="gift-three-canvas"></canvas>
+    </div>
+    <div class="gift-tagline">Surprise Someone<br>They'll Never Forget</div>
+    <p class="gift-sub">
+      We create deeply personal, interactive surprise websites — filled with photos, memories, and magic — delivered as a one-of-a-kind digital gift.
+    </p>
+    <div class="gift-btns">
+      <a href="#packages" class="btn-primary">🎁 Get Started</a>
+      <a href="#samples" class="btn-outline">View Our Work</a>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section" aria-hidden="true">
+    <div class="marquee-track" id="marquee-track"></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <div class="section-inner">
+      <div class="section-label">The Process</div>
+      <h2 class="section-title">How Momenta Works</h2>
+      <p class="section-desc">From idea to a magical, personalized surprise — in just a few steps.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">💬</div>
+          <div class="step-num">1</div>
+          <div class="step-title">Share Your Story</div>
+          <p class="step-desc">Tell us about the person and the occasion. We listen and craft the perfect plan.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">📸</div>
+          <div class="step-num">2</div>
+          <div class="step-title">Upload Memories</div>
+          <p class="step-desc">Send us photos, voice notes, and videos through your private upload portal.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">✨</div>
+          <div class="step-num">3</div>
+          <div class="step-title">We Build the Magic</div>
+          <p class="step-desc">Our team designs a beautiful, personalized surprise website just for them.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">🎁</div>
+          <div class="step-num">4</div>
+          <div class="step-title">Share the Surprise</div>
+          <p class="step-desc">Receive a private link and share it with your loved one at the perfect moment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAMPLES / OUR WORK -->
+  <section id="samples">
+    <div class="section-inner">
+      <div class="section-label">Our Work</div>
+      <h2 class="section-title">Sample Creations</h2>
+      <p class="section-desc">A peek at some of the magical surprises we've crafted for our clients.</p>
+      <div class="samples-grid" id="samples-grid">
+        <div class="samples-empty">
+          <div class="samples-empty-icon">🎨</div>
+          <p class="samples-empty-text">Loading samples...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PACKAGES -->
+  <section id="packages">
+    <div class="section-inner">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Choose Your Package</h2>
+      <p class="section-desc">Every package includes a fully personalized surprise website. Prices depend on complexity.</p>
+      <div class="packages-grid">
+        <div class="package-card">
+          <div class="pkg-name">Starter</div>
+          <div class="pkg-price">₹299 <span>+</span></div>
+          <div class="pkg-note">Depending upon your needs</div>
+          <ul class="pkg-features">
+            <li>1-page surprise website</li>
+            <li>Up to 10 photos</li>
+            <li>Custom message</li>
+            <li>Music background</li>
+            <li>48hr delivery</li>
+          </ul>
+          <a href="#payment-section" class="btn-primary" style="display:block;text-align:center;">Get Started</a>
+        </div>
+        <div class="package-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <div class="pkg-name">Romantic</div>
+          <div class="pkg-price">₹499 <span>+</span></div>
+          <div class="pkg-note">Depending upon your needs</div>
+          <ul class="pkg-features">
+            <li>Multi-page surprise site</li>
+            <li>Up to 30 photos & videos</li>
+            <li>Love timeline</li>
+            <li>Custom animations</li>
+            <li>36hr delivery</li>
+          </ul>
+          <a href="#payment-section" class="btn-primary" style="display:block;text-align:center;">Get Started</a>
+        </div>
+        <div class="package-card">
+          <div class="pkg-name">Premium</div>
+          <div class="pkg-price">₹799 <span>+</span></div>
+          <div class="pkg-note">Depending upon your needs</div>
+          <ul class="pkg-features">
+            <li>Full custom experience</li>
+            <li>Unlimited photos & videos</li>
+            <li>Interactive elements</li>
+            <li>3D animations</li>
+            <li>24hr priority delivery</li>
+          </ul>
+          <a href="#payment-section" class="btn-primary" style="display:block;text-align:center;">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MADE WITH LOVE / HEART SECTION -->
+  <section id="love-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-label">Our Promise</div>
+      <h2 class="section-title">Made With Love ♡</h2>
+      <p class="section-desc" style="margin:0 auto 2rem;">Every Momenta creation is crafted with genuine care — we put our hearts into every single surprise.</p>
+      <div id="m-heart-outer">
+        <canvas id="m-heart-canvas"></canvas>
+        <p id="m-heart-label">Made with love ♥</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="section-inner">
+      <div class="section-label">Reviews</div>
+      <h2 class="section-title">What Our Customers Say</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"My girlfriend cried happy tears when she opened it. Momenta created something truly magical — worth every rupee!"</p>
+          <div class="testi-author">— Arjun K., Mumbai</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"I gifted this to my parents for their anniversary. The team was so thoughtful and creative. Absolutely stunning result."</p>
+          <div class="testi-author">— Priya R., Bangalore</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Quick, personal, and beautiful. The surprise website had all our memories woven together perfectly. 10/10!"</p>
+          <div class="testi-author">— Rohan M., Delhi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENT / OTP -->
+  <section id="payment-section">
+    <div class="section-inner">
+      <div class="payment-inner">
+        <div class="payment-icon">🔑</div>
+        <h2>Unlock My Payment</h2>
+        <p>Enter your unique token provided by Momenta to generate your secure payment verification code.</p>
+        <input class="payment-input" id="payment-token-input" type="text" placeholder="Enter your token (e.g. TKN-...)" autocomplete="off" />
+        <button class="payment-btn" id="unlock-btn">Unlock My Payment</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- OTP MODAL -->
+  <div id="m-otp-overlay">
+    <div id="m-otp-card">
+      <button id="m-otp-close">&times;</button>
+      <div style="font-size:2rem;margin-bottom:0.5rem">🔐</div>
+      <div id="m-otp-title">Your Payment Code</div>
+      <div id="m-otp-sub">Save this 6-digit code to verify your payment with Momenta support.</div>
+      <div id="m-otp-digits"></div>
+      <button id="m-otp-copy">📋 Copy Code</button>
+      <div id="m-otp-note">
+        <strong>How it works:</strong> This code is generated from your private token.
+        Share it with Momenta support to verify your payment instantly.
+        <br><br>
+        <strong>After payment:</strong> Upload your photos and videos in the customer portal.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Momenta</div>
+    <p class="footer-tagline">Personalized surprise websites, made with ♡</p>
+    <div class="footer-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#samples">Our Work</a>
+      <a href="#packages">Packages</a>
+      <a href="#payment-section">Payment</a>
+      <a href="admin.html">Admin</a>
+    </div>
+    <p class="footer-copy">© 2026 Momenta. All rights reserved.</p>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── PAGE PARTICLES ── */
+    (function startPageParticles() {
+      var pc = document.getElementById('m-page-canvas');
+      var ctx = pc.getContext('2d');
+      var W, H, dots = [];
+
+      function rnd(spawnBottom) {
+        return {
+          x: Math.random() * (W || window.innerWidth),
+          y: spawnBottom ? (H || window.innerHeight) + 10 : Math.random() * (H || window.innerHeight),
+          vy: -(0.15 + Math.random() * 0.45),
+          vx: (Math.random() - 0.5) * 0.2,
+          r:  0.6 + Math.random() * 2,
+          hue: 328 + Math.random() * 28,
+          light: 55 + Math.random() * 28,
+          alpha: 0.1 + Math.random() * 0.3,
+          phase: Math.random() * 6.28,
+          twinkle: 0.6 + Math.random() * 1.2,
+        };
+      }
+
+      function resize() { W = pc.width = window.innerWidth; H = pc.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+      for (var i = 0; i < 100; i++) dots.push(rnd(false));
+
+      (function tick() {
+        requestAnimationFrame(tick);
+        ctx.clearRect(0, 0, W, H);
+        var t = Date.now() * 0.001;
+        dots.forEach(function (d, i) {
+          d.x += d.vx + Math.sin(t * 0.3 + d.phase) * 0.1;
+          d.y += d.vy;
+          if (d.y < -20) { dots[i] = rnd(true); return; }
+          var a = d.alpha * (0.55 + 0.45 * Math.sin(t * d.twinkle + d.phase));
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.r, 0, 6.28);
+          ctx.fillStyle = 'hsla(' + d.hue + ',72%,' + d.light + '%,' + a.toFixed(3) + ')';
+          ctx.fill();
+        });
+      }());
+    }());
+
+    /* ── FLOATING HEARTS ── */
+    (function startFloatingHearts() {
+      var sizes = [12, 14, 16, 18, 20, 22];
+      var durs  = [7, 9, 11, 13, 8, 10];
+      for (var i = 0; i < 16; i++) {
+        (function (i) {
+          var el = document.createElement('div');
+          el.className = 'm-float-heart';
+          el.textContent = '♥';
+          var sz  = sizes[i % sizes.length];
+          var dur = durs[i % durs.length] + Math.random() * 4;
+          var del = Math.random() * dur;
+          var hue = 330 + Math.floor(Math.random() * 25);
+          el.style.cssText = [
+            'font-size:' + sz + 'px',
+            'left:' + (3 + Math.random() * 94).toFixed(1) + '%',
+            'bottom:' + (-10 + Math.random() * 60) + '%',
+            'color:hsl(' + hue + ',80%,68%)',
+            'animation-duration:' + dur.toFixed(1) + 's',
+            'animation-delay:-' + del.toFixed(1) + 's',
+          ].join(';');
+          document.body.appendChild(el);
+        }(i));
+      }
+    }());
+
+    /* ── MARQUEE ── */
+    (function buildMarquee() {
+      var items = [
+        '100% Personalised', '🌸', 'Made with Love', '✨',
+        'Unique Surprise Websites', '🎁', 'Your Memories, Beautifully Told', '💕',
+        'Fast Delivery', '⭐', 'Premium Quality', '🌸',
+        '100% Personalised', '🌸', 'Made with Love', '✨',
+        'Unique Surprise Websites', '🎁', 'Your Memories, Beautifully Told', '💕',
+        'Fast Delivery', '⭐', 'Premium Quality', '🌸',
+      ];
+      var track = document.getElementById('marquee-track');
+      track.innerHTML = items.map(function (it) {
+        return '<span>' + it + '</span>';
+      }).join('');
+    }());
+
+    /* ── HEART PARTICLE SIMULATION ── */
+    (function bootHeart() {
+      var outer  = document.getElementById('m-heart-outer');
+      var canvas = document.getElementById('m-heart-canvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+
+      function inHeart2D(x, y) { var q = x*x+y*y-1; return q*q*q - x*x*(y*y*y) <= 0; }
+
+      var pts = [];
+      var tries = 0;
+      while (pts.length < 3500 && tries < 120000) {
+        tries++;
+        var x = (Math.random()*2-1)*1.15, y = (Math.random()*2-1)*1.15;
+        if (!inHeart2D(x, y)) continue;
+        var z = (Math.random()*2-1)*0.35;
+        if (Math.abs(z) < 0.18 && Math.random() > 0.22) continue;
+        var t = Math.max(0, Math.min(1, (y+1.08)/2.08));
+        var hue = 333+(1-t)*17, sat = 58+t*32, light = 38+t*44+Math.random()*9;
+        var bright = (x*x+y*y) > 0.55 && Math.random() < 0.14;
+        if (bright) { sat=88; light=Math.min(90,light+18); }
+        pts.push({ x:x, y:y, z:z, hue:hue, sat:sat, light:light,
+          baseSize:1.1+Math.random()*2.6, bright:bright,
+          tp:Math.random()*6.28, ts:0.009+Math.random()*0.024 });
+      }
+
+      function resize() {
+        var rect = outer.getBoundingClientRect();
+        var side = window.innerWidth < 640
+          ? Math.min(Math.max(rect.width||160,140),180)
+          : Math.min(Math.max(rect.width||200,170),260);
+        canvas.width = side;
+        canvas.height = Math.round(side*1.08);
+      }
+      resize(); window.addEventListener('resize', resize);
+
+      var angleY = 0, frame = 0, FOV = 3.8;
+      (function draw() {
+        requestAnimationFrame(draw); frame++;
+        angleY += 0.0042;
+        var pulse = 1 + 0.026*Math.sin(frame*0.020);
+        var W = canvas.width, H = canvas.height, SC = W*0.42;
+        var cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+        ctx.clearRect(0,0,W,H);
+        var proj = pts.map(function(p) {
+          var rx = p.x*cosY+p.z*sinY, ry=p.y, rz=-p.x*sinY+p.z*cosY;
+          var persp = FOV/(FOV+rz);
+          var tw = 0.78+0.22*Math.sin(p.tp+frame*p.ts);
+          var alpha = Math.min(1,Math.max(0.04,(0.18+0.82*(rz+0.38)/0.76)*tw));
+          return { sx:W*0.5+rx*SC*pulse*persp, sy:H*0.5-ry*SC*pulse*persp,
+            depth:rz, size:p.baseSize*persp*tw,
+            hue:p.hue, sat:p.sat, light:p.light, alpha:alpha, bright:p.bright };
+        });
+        proj.sort(function(a,b){ return a.depth-b.depth; });
+        proj.forEach(function(q) {
+          var r = Math.max(0.28, q.size);
+          ctx.beginPath(); ctx.arc(q.sx,q.sy,r,0,6.28);
+          ctx.fillStyle = 'hsla('+q.hue+','+q.sat+'%,'+q.light+'%,'+q.alpha.toFixed(3)+')';
+          ctx.fill();
+          if (q.bright && q.depth>0.10) {
+            ctx.beginPath(); ctx.arc(q.sx,q.sy,r*3.4,0,6.28);
+            ctx.fillStyle = 'hsla('+q.hue+',90%,93%,'+(q.alpha*0.14).toFixed(3)+')';
+            ctx.fill();
+          }
+        });
+        var gr = W*(0.35+0.038*Math.sin(frame*0.016));
+        var cg = ctx.createRadialGradient(W*.5,H*.48,0,W*.5,H*.48,gr);
+        cg.addColorStop(0,'hsla(340,86%,70%,0.12)');
+        cg.addColorStop(1,'hsla(340,60%,44%,0)');
+        ctx.fillStyle = cg; ctx.fillRect(0,0,W,H);
+      }());
+    }());
+
+    /* ── OTP SYSTEM ── */
+    function generateOTP(token) {
+      var s = token.toUpperCase().replace(/\s/g,''), h = 5381;
+      for (var i=0;i<s.length;i++) { h=((h<<5)+h)^s.charCodeAt(i); h=h&0x7fffffff; }
+      return String(100000+(h%900000));
+    }
+    function showOTP(otp) {
+      var overlay = document.getElementById('m-otp-overlay');
+      var digits  = document.getElementById('m-otp-digits');
+      var sub     = document.getElementById('m-otp-sub');
+      sub.textContent = 'Save this 6-digit code to verify your payment with Momenta support.';
+      digits.innerHTML = otp.split('').map(function(d){
+        return '<div class="m-otp-digit">'+d+'</div>';
+      }).join('');
+      overlay.classList.add('show');
+    }
+    document.getElementById('m-otp-close').addEventListener('click', function(){
+      document.getElementById('m-otp-overlay').classList.remove('show');
+    });
+    document.getElementById('m-otp-overlay').addEventListener('click', function(e){
+      if (e.target === this) this.classList.remove('show');
+    });
+    document.getElementById('m-otp-copy').addEventListener('click', function(){
+      var otp = Array.from(document.querySelectorAll('.m-otp-digit')).map(function(d){return d.textContent;}).join('');
+      var btn = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(otp) : Promise.reject()).then(function(){
+        btn.textContent = '✓ Copied!';
+        setTimeout(function(){ btn.innerHTML = '📋 Copy Code'; }, 2000);
+      }).catch(function(){
+        var ta = document.createElement('textarea');
+        ta.value = otp; ta.style = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+        btn.textContent = '✓ Copied!';
+        setTimeout(function(){ btn.innerHTML = '📋 Copy Code'; }, 2000);
+      });
+    });
+    document.getElementById('unlock-btn').addEventListener('click', function(){
+      var token = document.getElementById('payment-token-input').value.trim();
+      if (!token) { alert('Please enter your token'); return; }
+      var otp = generateOTP(token);
+      setTimeout(function(){ showOTP(otp); }, 400);
+    });
+
+    /* ── SAMPLES LOADER ── */
+    async function loadSamples() {
+      var grid = document.getElementById('samples-grid');
+      try {
+        var res = await fetch('/api/samples');
+        var data = await res.json();
+        if (!data.samples || data.samples.length === 0) {
+          grid.innerHTML = '<div class="samples-empty"><div class="samples-empty-icon">🎨</div><p class="samples-empty-text">Our portfolio samples will appear here soon. Check back shortly!</p></div>';
+          return;
+        }
+        grid.innerHTML = data.samples.map(function(s) {
+          var media = s.isVideo
+            ? '<video class="sample-media video" src="'+s.url+'" muted loop playsinline autoplay></video>'
+            : '<img class="sample-media" src="'+s.url+'" alt="'+s.title+'" loading="lazy" />';
+          return '<div class="sample-card">'+media+'<div class="sample-info"><div class="sample-category">'+s.category+'</div><div class="sample-title">'+s.title+'</div>'+(s.description?'<p class="sample-desc">'+s.description+'</p>':'')+'</div></div>';
+        }).join('');
+      } catch(e) {
+        grid.innerHTML = '<div class="samples-empty"><div class="samples-empty-icon">🎨</div><p class="samples-empty-text">Portfolio loading...</p></div>';
+      }
+    }
+    loadSamples();
+
+  }());
+  </script>
+
+  <!-- THREE.JS GIFT BOX ANIMATION -->
+  <script>
+  (function() {
+    var canvas = document.getElementById('gift-three-canvas');
+    var wrap   = document.getElementById('gift-canvas-wrap');
+
+    var W = wrap.clientWidth || 420;
+    var H = wrap.clientHeight || 380;
+
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(W, H);
+    renderer.shadowMap.enabled = true;
+
+    var scene = new THREE.Scene();
+
+    var camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+    camera.position.set(0, 1.8, 5.5);
+    camera.lookAt(0, 0, 0);
+
+    /* Lights */
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    var dirLight = new THREE.DirectionalLight(0xfff0f8, 1.2);
+    dirLight.position.set(4, 8, 6);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+    var fillLight = new THREE.PointLight(0xffb3cc, 0.8, 20);
+    fillLight.position.set(-3, 2, 3);
+    scene.add(fillLight);
+    var rimLight = new THREE.PointLight(0xc8b3ff, 0.5, 15);
+    rimLight.position.set(3, 3, -4);
+    scene.add(rimLight);
+
+    /* Materials */
+    var boxMat  = new THREE.MeshPhongMaterial({ color: 0xb8aaff, shininess: 60, specular: 0xffffff });
+    var lidMat  = new THREE.MeshPhongMaterial({ color: 0xc4b8ff, shininess: 80, specular: 0xffffff });
+    var ribbonMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100, specular: 0xffeeff });
+    var starMat = new THREE.MeshPhongMaterial({ color: 0x7de8e8, shininess: 80, specular: 0xffffff, emissive: 0x3dd4d4, emissiveIntensity: 0.3 });
+    var starMat2 = new THREE.MeshPhongMaterial({ color: 0xff7070, shininess: 80, specular: 0xffffff, emissive: 0xff3030, emissiveIntensity: 0.2 });
+
+    /* Helper: rounded box */
+    function makeBox(w, h, d) {
+      return new THREE.BoxGeometry(w, h, d, 2, 2, 2);
+    }
+
+    /* Box body */
+    var boxGroup = new THREE.Group();
+    scene.add(boxGroup);
+
+    var bodyMesh = new THREE.Mesh(makeBox(2, 1.6, 2), boxMat);
+    bodyMesh.position.y = 0.8;
+    bodyMesh.castShadow = true;
+    boxGroup.add(bodyMesh);
+
+    /* Ribbon vertical stripe on body */
+    var vRibBody = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.62, 2.02), ribbonMat);
+    vRibBody.position.y = 0.8;
+    boxGroup.add(vRibBody);
+    var hRibBody = new THREE.Mesh(new THREE.BoxGeometry(2.02, 0.22, 2.02), ribbonMat);
+    hRibBody.position.y = 0.8;
+    boxGroup.add(hRibBody);
+
+    /* Lid group (pivots from base of lid so it opens upward) */
+    var lidGroup = new THREE.Group();
+    lidGroup.position.y = 1.6;
+    boxGroup.add(lidGroup);
+
+    var lidMesh = new THREE.Mesh(makeBox(2.15, 0.3, 2.15), lidMat);
+    lidMesh.position.y = 0.15;
+    lidMesh.castShadow = true;
+    lidGroup.add(lidMesh);
+
+    /* Ribbon on lid */
+    var vRibLid = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.32, 2.17), ribbonMat);
+    vRibLid.position.y = 0.15;
+    lidGroup.add(vRibLid);
+    var hRibLid = new THREE.Mesh(new THREE.BoxGeometry(2.17, 0.32, 0.22), ribbonMat);
+    hRibLid.position.y = 0.15;
+    lidGroup.add(hRibLid);
+
+    /* Bow on lid */
+    function makeBowLoop(offsetX) {
+      var loop = new THREE.Mesh(
+        new THREE.TorusGeometry(0.28, 0.07, 8, 16, Math.PI),
+        ribbonMat
+      );
+      loop.position.set(offsetX, 0.35, 0);
+      loop.rotation.z = offsetX > 0 ? 0.4 : -0.4;
+      lidGroup.add(loop);
+    }
+    makeBowLoop(0.22);
+    makeBowLoop(-0.22);
+
+    /* Bow knot */
+    var knot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), ribbonMat);
+    knot.position.set(0, 0.38, 0);
+    lidGroup.add(knot);
+
+    /* Star helper */
+    function makeStarShape(r1, r2, points) {
+      var shape = new THREE.Shape();
+      var step  = Math.PI / points;
+      for (var i = 0; i < 2 * points; i++) {
+        var r = i % 2 === 0 ? r1 : r2;
+        var a = i * step - Math.PI / 2;
+        var x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+      }
+      shape.closePath();
+      return shape;
+    }
+    function makeStar(r1, r2, points, depth, mat) {
+      var shape   = makeStarShape(r1, r2, points);
+      var extOpts = { depth: depth, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02, bevelSegments: 2 };
+      return new THREE.Mesh(new THREE.ExtrudeGeometry(shape, extOpts), mat);
+    }
+
+    /* Teal stars scattered */
+    var stars = [];
+    var starPositions = [
+      [-1.8,  0.4, 0.8, 0.0],
+      [ 1.7,  0.2, 1.0, 0.5],
+      [-1.4, -0.1, -1.0, -0.3],
+      [ 1.5,  1.0, -0.6, 0.8],
+    ];
+    starPositions.forEach(function(sp, i) {
+      var s = makeStar(0.22, 0.10, 5, 0.08, i < 2 ? starMat : starMat.clone());
+      s.position.set(sp[0], sp[1], sp[2]);
+      s.rotation.set(sp[3], sp[3], 0);
+      scene.add(s);
+      stars.push(s);
+    });
+
+    /* Orange/red confetti ribbons */
+    var confettiMat1 = new THREE.MeshPhongMaterial({ color: 0xff7b5c, shininess: 40 });
+    var confettiMat2 = new THREE.MeshPhongMaterial({ color: 0xff5c7b, shininess: 40 });
+    var confettis = [];
+
+    function makeConfettiStrip(mat) {
+      var strip = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 4, 8, Math.PI * 1.2), mat);
+      return strip;
+    }
+
+    var conf1 = makeConfettiStrip(confettiMat1);
+    conf1.position.set(0.4, 2.9, 0.2);
+    conf1.rotation.set(0.4, 0.6, -0.3);
+    scene.add(conf1); confettis.push(conf1);
+
+    var conf2 = makeConfettiStrip(confettiMat2);
+    conf2.position.set(-0.6, 2.7, -0.3);
+    conf2.rotation.set(-0.3, -0.4, 0.5);
+    scene.add(conf2); confettis.push(conf2);
+
+    var conf3 = makeConfettiStrip(confettiMat1);
+    conf3.position.set(0.1, 2.5, 0.5);
+    conf3.rotation.set(0.8, 0.2, 0.6);
+    scene.add(conf3); confettis.push(conf3);
+
+    /* Confetti particles */
+    var confettiParticles = [];
+    for (var i = 0; i < 22; i++) {
+      var cMat = new THREE.MeshPhongMaterial({
+        color: [0xff7b5c, 0xffd670, 0xc8b3ff, 0x7de8e8, 0xff8fb3][Math.floor(Math.random() * 5)],
+        shininess: 60
+      });
+      var cMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.07), cMat);
+      cMesh.position.set(
+        (Math.random() - 0.5) * 3.5,
+        0.5 + Math.random() * 3.5,
+        (Math.random() - 0.5) * 3.5
+      );
+      cMesh.rotation.set(Math.random() * 6.28, Math.random() * 6.28, Math.random() * 6.28);
+      var userData = {
+        vy:  -(0.008 + Math.random() * 0.015),
+        vrot: (Math.random() - 0.5) * 0.06,
+        origY: cMesh.position.y
+      };
+      cMesh.userData = userData;
+      scene.add(cMesh);
+      confettiParticles.push(cMesh);
+    }
+
+    /* Pink ball inside box */
+    var ballMat = new THREE.MeshPhongMaterial({ color: 0xffb3cc, shininess: 120, specular: 0xffffff });
+    var ball    = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), ballMat);
+    ball.position.y = 1.25;
+    boxGroup.add(ball);
+
+    /* Orange star inside */
+    var innerStar = makeStar(0.32, 0.14, 5, 0.1, starMat2);
+    innerStar.position.set(0.1, 2.0, 0.1);
+    innerStar.rotation.set(0.2, 0.4, 0);
+    scene.add(innerStar);
+
+    /* Ground reflection plane */
+    var groundMat = new THREE.MeshPhongMaterial({
+      color: 0xfce4f0, transparent: true, opacity: 0.4, shininess: 30
+    });
+    var ground = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    /* Animation state */
+    var clock       = new THREE.Clock();
+    var totalT      = 0;
+    var CYCLE       = 5.5;  /* seconds per open-close cycle */
+    var OPEN_ANGLE  = -Math.PI * 0.72;
+
+    function getLidAngle(t) {
+      var phase = (t % CYCLE) / CYCLE;
+      /* Open 0→0.35 of cycle, hold 0.35→0.65, close 0.65→1 */
+      if (phase < 0.35) {
+        var p = phase / 0.35;
+        /* ease-in-out */
+        p = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+        return OPEN_ANGLE * p;
+      } else if (phase < 0.65) {
+        return OPEN_ANGLE;
+      } else {
+        var p = (phase - 0.65) / 0.35;
+        p = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+        return OPEN_ANGLE * (1 - p);
+      }
+    }
+
+    function getConfettiVisibility(t) {
+      var phase = (t % CYCLE) / CYCLE;
+      return (phase > 0.25 && phase < 0.75);
+    }
+
+    window.addEventListener('resize', function() {
+      var W2 = wrap.clientWidth, H2 = wrap.clientHeight;
+      camera.aspect = W2 / H2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W2, H2);
+    });
+
+    (function animate() {
+      requestAnimationFrame(animate);
+      var delta = clock.getDelta();
+      totalT += delta;
+
+      /* Lid animation */
+      var targetLidAngle = getLidAngle(totalT);
+      lidGroup.rotation.x += (targetLidAngle - lidGroup.rotation.x) * 0.1;
+
+      /* Confetti visibility */
+      var showConf = getConfettiVisibility(totalT);
+      conf1.visible = conf2.visible = conf3.visible = showConf;
+      innerStar.visible = showConf;
+
+      /* Confetti particles fly out when open */
+      confettiParticles.forEach(function(c) {
+        if (showConf) {
+          c.visible = true;
+          c.position.y += c.userData.vy;
+          c.rotation.x += c.userData.vrot;
+          c.rotation.z += c.userData.vrot * 0.7;
+          if (c.position.y < -0.5) {
+            c.position.y = c.userData.origY;
+          }
+        } else {
+          c.position.y = c.userData.origY;
+          c.visible = false;
+        }
+      });
+
+      /* Slow rotation of whole box */
+      boxGroup.rotation.y += 0.004;
+
+      /* Stars orbit & float */
+      stars.forEach(function(s, i) {
+        s.rotation.y += 0.025;
+        s.rotation.z += 0.018;
+        s.position.y += Math.sin(totalT * 1.4 + i * 1.2) * 0.005;
+      });
+
+      /* Ball pulse */
+      var bp = 1 + 0.04 * Math.sin(totalT * 3);
+      ball.scale.set(bp, bp, bp);
+
+      renderer.render(scene, camera);
+    }());
+  }());
+  </script>
+
+</body>
+</html>
