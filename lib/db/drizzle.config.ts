@@ -10,9 +10,12 @@ if (!rawUrl) {
 function resolveConnectionUrl(url: string): string {
   try {
     const u = new URL(url);
-    // Already a pooler URL — just ensure sslmode
+    // Already a pooler URL — ensure correct SSL params for pg v8
     if (u.hostname.includes("pooler.supabase.com")) {
-      return url.includes("sslmode=") ? url : `${url}${url.includes("?") ? "&" : "?"}sslmode=require`;
+      let result = url;
+      if (!result.includes("sslmode=")) result += (result.includes("?") ? "&" : "?") + "sslmode=require";
+      if (!result.includes("uselibpqcompat=")) result += "&uselibpqcompat=true";
+      return result;
     }
     // Direct DB host: rewrite to pooler
     const refMatch = u.hostname.match(/^db\.([^.]+)\.supabase\.co$/);
