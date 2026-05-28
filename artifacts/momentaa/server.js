@@ -18,8 +18,9 @@ app.use(express.static('.'));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/public',  express.static(path.join(__dirname, 'public')));
 
-// ── Supabase client (if keys are set) ────────────────────────────────────────
+// ── Supabase clients (if keys are set) ───────────────────────────────────────
 let supabase = null;
+let supabaseAnon = null;
 if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
   try {
     const { createClient } = require('@supabase/supabase-js');
@@ -32,12 +33,36 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
         realtime: { transport: ws }
       }
     );
+    if (process.env.SUPABASE_ANON_KEY) {
+      supabaseAnon = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_ANON_KEY,
+        { auth: { persistSession: false }, realtime: { transport: ws } }
+      );
+    }
     console.log('✓ Supabase connected');
   } catch (e) {
     console.warn('Supabase init failed:', e.message);
   }
 } else {
   console.log('ℹ No Supabase keys – using local JSON storage');
+}
+
+// ── Admin auth middleware ─────────────────────────────────────────────────────
+async function requireAdminAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const token = authHeader.slice(7);
+  if (supabase) {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(401).json({ error: 'Invalid or expired session. Please log in again.' });
+    req.adminUser = user;
+    return next();
+  }
+  if (token.startsWith('admin-')) return next();
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
 // ── Multer ────────────────────────────────────────────────────────────────────
@@ -230,7 +255,7 @@ app.get('/api/samples', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/samples', upload.single('file'), async (req, res) => {
+app.post('/api/samples', requireAdminAuth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const { title, description, category } = req.body;
@@ -245,7 +270,7 @@ app.post('/api/samples', upload.single('file'), async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/samples/:id', async (req, res) => {
+app.delete('/api/samples/:id', requireAdminAuth, async (req, res) => {
   try {
     const fn = await DB.deleteSample(req.params.id);
     if (fn) {
@@ -262,7 +287,7 @@ app.get('/api/reviews', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/reviews', async (req, res) => {
+app.post('/api/reviews', requireAdminAuth, async (req, res) => {
   try {
     const { name, text, rating, occasion } = req.body;
     if (!name || !text) return res.status(400).json({ error: 'Name and text required' });
@@ -278,18 +303,18 @@ app.post('/api/reviews', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/reviews/:id', async (req, res) => {
+app.delete('/api/reviews/:id', requireAdminAuth, async (req, res) => {
   try { await DB.deleteReview(req.params.id); res.json({ success: true }); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── ORDERS ────────────────────────────────────────────────────────────────────
-app.get('/api/orders', async (req, res) => {
+app.get('/api/orders', requireAdminAuth, async (req, res) => {
   try { res.json({ success: true, orders: await DB.getOrders() }); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/orders', async (req, res) => {
+app.post('/api/orders', requireAdminAuth, async (req, res) => {
   try {
     const { customerName, customerEmail, customerPhone, occasion, date,
             price, advanceAmount, remainingAmount, notes } = req.body;
@@ -320,7 +345,7 @@ app.get('/api/orders/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/orders/:id', async (req, res) => {
+app.put('/api/orders/:id', requireAdminAuth, async (req, res) => {
   try {
     const allowed = ['customerName','customerEmail','customerPhone','occasion','date','price',
       'advanceAmount','remainingAmount','advancePaid','remainingPaid','status','notes','finalProjectLink'];
@@ -332,7 +357,7 @@ app.put('/api/orders/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/orders/:id', async (req, res) => {
+app.delete('/api/orders/:id', requireAdminAuth, async (req, res) => {
   try { await DB.deleteOrder(req.params.id); res.json({ success: true }); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -387,20 +412,32 @@ app.post('/api/payment', async (req, res) => {
 });
 
 // ── ADMIN AUTH ────────────────────────────────────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
+app.post('/api/admin/login', async (req, res) => {
+  const { email, username, password } = req.body;
+  const loginEmail = email || username;
+
+  if (supabaseAnon) {
+    const { data, error } = await supabaseAnon.auth.signInWithPassword({ email: loginEmail, password });
+    if (error || !data.session) return res.status(401).json({ error: 'Invalid credentials' });
+    return res.json({
+      success: true,
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token
+    });
+  }
+
+  // Fallback: env-var credentials
   const adminUsername = process.env.ADMIN_USERNAME;
   const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminUsername || !adminPassword) {
-    return res.status(500).json({ error: 'Admin login is not configured' });
+  if (!adminUsername || !adminPassword) return res.status(500).json({ error: 'Admin login is not configured' });
+  if ((loginEmail || username) === adminUsername && password === adminPassword) {
+    return res.json({ success: true, token: 'admin-' + Date.now() });
   }
+  res.status(401).json({ error: 'Invalid credentials' });
+});
 
-  if (username === adminUsername && password === adminPassword) {
-    res.json({ success: true, token: 'admin-' + Date.now() });
-  } else {
-    res.status(401).json({ error: 'Invalid credentials' });
-  }
+app.get('/api/admin/me', requireAdminAuth, (req, res) => {
+  res.json({ success: true, user: req.adminUser || { id: 'admin' } });
 });
 
 // ── PAGES ─────────────────────────────────────────────────────────────────────
