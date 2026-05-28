@@ -1,66 +1,16 @@
-<<<<<<< HEAD
-modules = ["nodejs-24"]
-
-[deployment]
-router = "application"
-deploymentTarget = "autoscale"
-
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
-
-
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
-
-stack = "BEST_EFFORT_FALLBACK"
-
-[nix]
-channel = "stable-25_05"
-
-[workflows]
-runButton = "Project"
-
-
-[nix]
-channel = "stable-25_05"
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-=======
 modules = ["nodejs-20"]
+run = "pnpm --filter @workspace/momentaa run dev -- --port 5000"
+
 [agent]
 expertMode = true
 stack = "BEST_EFFORT_FALLBACK"
 
 [nix]
 channel = "stable-25_05"
->>>>>>> e2113e8c3302b5f9e5dce95d2cc8a6c614125283
 
 [workflows]
 runButton = "Project"
 
-<<<<<<< HEAD
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
-
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-=======
 [[workflows.workflow]]
 name = "Project"
 mode = "parallel"
@@ -76,49 +26,12 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node server.js"
+args = "pnpm --filter @workspace/momentaa run dev -- --port 5000"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-
-[workflows]
-runButton = "Project"
-
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-externalPort = 80
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node server.js"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
