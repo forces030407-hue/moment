@@ -66,20 +66,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .hero-poster:hover{transform:perspective(800px) rotateY(0deg) rotateX(0deg)}
 .hero-glow{position:absolute;inset:-20%;background:radial-gradient(ellipse,rgba(240,68,122,.15) 0%,transparent 70%);pointer-events:none;z-index:-1}
 
-/* ── 3D PHOTO GALLERY ── */
-#photos-section{position:relative;z-index:1;padding:5rem 2rem;text-align:center;overflow:hidden}
 .section-badge{display:inline-flex;align-items:center;gap:.4rem;color:var(--gold);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;margin-bottom:.8rem}
 .section-badge::before,.section-badge::after{content:"✦";font-size:.6rem}
 .section-title{font-family:"Playfair Display",serif;font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:.8rem}
 .section-sub{color:var(--muted);font-size:.95rem;max-width:500px;margin:0 auto 3rem}
-.photo-scene{perspective:1000px;width:100%;height:380px;position:relative;margin:0 auto}
-.photo-carousel{position:relative;width:200px;height:280px;transform-style:preserve-3d;margin:0 auto;animation:spin3d 18s linear infinite}
-@keyframes spin3d{to{transform:rotateY(360deg)}}
-.photo-card{position:absolute;width:200px;height:260px;border-radius:1rem;overflow:hidden;border:2px solid rgba(240,68,122,.3);box-shadow:0 8px 32px rgba(0,0,0,.5);backface-visibility:visible;transition:all .3s}
-.photo-card img,.photo-card .ph{width:100%;height:100%;object-fit:cover}
-.photo-card .ph{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--card),var(--surface));gap:.5rem}
-.photo-card .ph span{font-size:.8rem;color:var(--muted);font-style:italic}
-.photo-scene:hover .photo-carousel{animation-play-state:paused}
 
 /* ── GIFT BOX ── */
 #gift-section{position:relative;z-index:1;padding:4rem 2rem;text-align:center}
@@ -237,18 +227,6 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
     <div class="how-card"><div class="how-num">2</div><div class="how-icon">✨</div><h3>We Work Our Magic</h3><p>Our team crafts a bespoke digital surprise website in under 24 hours.</p></div>
     <div class="how-card"><div class="how-num">3</div><div class="how-icon">🎁</div><h3>They're Amazed</h3><p>Share the secret link and watch their reaction when they open it!</p></div>
     <div class="how-card"><div class="how-num">4</div><div class="how-icon">💝</div><h3>Forever Yours</h3><p>The page stays live as a lasting digital keepsake they can revisit anytime.</p></div>
-  </div>
-</section>
-
-<!-- 3D PHOTO GALLERY -->
-<section id="photos-section">
-  <div class="section-badge">Our Creations</div>
-  <h2 class="section-title">Moments We've <em style="font-style:italic;color:var(--pink)">Immortalised</em></h2>
-  <p class="section-sub">Every project is unique — here's a glimpse of the magic we create.</p>
-  <div class="photo-scene">
-    <div class="photo-carousel" id="photo-carousel">
-      <!-- cards injected by JS -->
-    </div>
   </div>
 </section>
 
@@ -415,38 +393,6 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
     t+=.016;requestAnimationFrame(frame);
   }
   frame();
-})();
-
-// ── 3D PHOTO CAROUSEL ─────────────────────────────────────────────────────────
-(function(){
-  const container=document.getElementById('photo-carousel');
-  const items=[
-    {emoji:'💑',label:'Love Story'},
-    {emoji:'🎂',label:'Birthday'},
-    {emoji:'💍',label:'Proposal'},
-    {emoji:'🎉',label:'Anniversary'},
-    {emoji:'💌',label:'Valentine'},
-    {emoji:'👨‍👩‍👧',label:'Family'},
-    {emoji:'🌸',label:'Friendship'},
-    {emoji:'✨',label:'Special Moment'},
-  ];
-  const n=items.length;
-  const angle=360/n;
-  const radius=Math.max(260,Math.min(320,window.innerWidth*.28));
-  items.forEach((item,i)=>{
-    const card=document.createElement('div');
-    card.className='photo-card';
-    card.style.transform=`rotateY(${i*angle}deg) translateZ(${radius}px)`;
-    card.innerHTML=`<div class="ph"><span>${item.emoji}</span><span>${item.label}</span></div>`;
-    container.appendChild(card);
-  });
-  // responsive radius
-  window.addEventListener('resize',()=>{
-    const r=Math.max(180,Math.min(320,window.innerWidth*.28));
-    [...container.children].forEach((c,i)=>{
-      c.style.transform=`rotateY(${i*angle}deg) translateZ(${r}px)`;
-    });
-  });
 })();
 
 // ── THREE.JS GIFT BOX ─────────────────────────────────────────────────────────
