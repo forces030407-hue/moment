@@ -1,0 +1,29 @@
+[
+  {
+    "id": "r1",
+    "name": "Priya Sharma",
+    "avatar": "PS",
+    "rating": 5,
+    "text": "I was completely speechless when I opened my surprise website. Every photo, every message — it felt like reliving the most beautiful moments of my life. Momenta truly made our anniversary unforgettable! ♥",
+    "occasion": "Anniversary",
+    "createdAt": "2026-04-10T10:00:00Z"
+  },
+  {
+    "id": "r2",
+    "name": "Rahul Verma",
+    "avatar": "RV",
+    "rating": 5,
+    "text": "Got this made for my girlfriend's birthday. She literally cried happy tears! The 3D animations and the music choice were perfect. Delivered in under 24 hours. 10/10 recommend Momenta!",
+    "occasion": "Birthday",
+    "createdAt": "2026-04-18T14:30:00Z"
+  },
+  {
+    "id": "r3",
+    "name": "Ananya Kapoor",
+    "avatar": "AK",
+    "rating": 5,
+    "text": "Used Momenta for my parents' 25th anniversary surprise. The whole family was in tears — beautiful tears! The design was so elegant and personal. Worth every rupee and more. 🎁",
+    "occasion": "Silver Jubilee",
+    "createdAt": "2026-05-01T09:15:00Z"
+  }
+]

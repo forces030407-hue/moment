@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
@@ -45,11 +44,14 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
+# Replit/local generated state
 .cache/
 .local/
-=======
-node_modules/
+.zip-work/
+
+# uploads
 public/uploads/*
 !public/uploads/.gitkeep
->>>>>>> e2113e8c3302b5f9e5dce95d2cc8a6c614125283
+artifacts/**/public/uploads/*
+!artifacts/**/public/uploads/.gitkeep
+node_modules
