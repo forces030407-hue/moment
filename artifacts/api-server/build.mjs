@@ -12,14 +12,13 @@ const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
+  const functionsDir = path.resolve(distDir, "functions");
   await rm(distDir, { recursive: true, force: true });
 
-  await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+  const baseOptions = {
     platform: "node",
     bundle: true,
     format: "esm",
-    outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
     // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
@@ -117,6 +116,20 @@ globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
 globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
+  };
+
+  await esbuild({
+    ...baseOptions,
+    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    outdir: distDir,
+  });
+
+  await esbuild({
+    ...baseOptions,
+    entryPoints: {
+      api: path.resolve(artifactDir, "src/netlify.ts"),
+    },
+    outdir: functionsDir,
   });
 }
 
