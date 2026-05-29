@@ -413,7 +413,7 @@ async function doLogin(){
   msg.innerHTML='<div class="msg info">Verifying…</div>';
   try{
     const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:u,password:p})});
-    const d=await r.json();
+    const d=await r.json().catch(()=>({error:'Login request failed.'}));
     if(d.success){
       sessionStorage.setItem('admin_token',d.token);
       if(d.refreshToken)sessionStorage.setItem('admin_refresh_token',d.refreshToken);

@@ -30,10 +30,14 @@ const corsHeaders = {
   "access-control-allow-headers": "content-type,authorization",
 };
 
-const supabaseUrl = process.env.SUPABASE_URL;
 const serviceKey =
   process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL ||
+  getSupabaseUrlFromJwt(anonKey);
 const storageBucket = process.env.SUPABASE_STORAGE_BUCKET || "momenta-uploads";
 
 const supabase =
@@ -67,6 +71,28 @@ function empty(status: number): Response {
 function errorJson(error: unknown): Response {
   const message = error instanceof Error ? error.message : "Unexpected error";
   return json(500, { error: message });
+}
+
+function getSupabaseUrlFromJwt(token: string | undefined): string | undefined {
+  if (!token) {
+    return undefined;
+  }
+
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) {
+      return undefined;
+    }
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(Buffer.from(normalized, "base64").toString("utf8")) as {
+      iss?: unknown;
+    };
+    const issuer = typeof decoded.iss === "string" ? decoded.iss : undefined;
+    return issuer?.replace(/\/auth\/v1\/?$/, "");
+  } catch {
+    return undefined;
+  }
 }
 
 function normalizeApiPath(pathname: string): string {
