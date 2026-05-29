@@ -34,25 +34,27 @@ const serviceKey =
   process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.SUPABASE_ANON_KEY;
 const supabaseUrl =
-  process.env.SUPABASE_URL ||
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.VITE_SUPABASE_URL ||
+  normalizeSupabaseUrl(process.env.SUPABASE_URL) ||
+  normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL) ||
+  normalizeSupabaseUrl(process.env.VITE_SUPABASE_URL) ||
   getSupabaseUrlFromJwt(anonKey);
 const storageBucket = process.env.SUPABASE_STORAGE_BUCKET || "momenta-uploads";
 
 const supabase =
   supabaseUrl && serviceKey
-    ? createClient(supabaseUrl, serviceKey, {
-        auth: { persistSession: false, autoRefreshToken: false },
-      })
+    ? createSupabaseClient(supabaseUrl, serviceKey)
     : null;
 
 const supabaseAnon =
   supabaseUrl && anonKey
-    ? createClient(supabaseUrl, anonKey, {
-        auth: { persistSession: false, autoRefreshToken: false },
-      })
+    ? createSupabaseClient(supabaseUrl, anonKey)
     : null;
+
+function createSupabaseClient(url: string, key: string): SupabaseClient {
+  return createClient(url, key, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+}
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -73,6 +75,22 @@ function errorJson(error: unknown): Response {
   return json(500, { error: message });
 }
 
+function normalizeSupabaseUrl(value: string | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(value);
+    if (!url.hostname.endsWith(".supabase.co")) {
+      return undefined;
+    }
+    return url.origin;
+  } catch {
+    return undefined;
+  }
+}
+
 function getSupabaseUrlFromJwt(token: string | undefined): string | undefined {
   if (!token) {
     return undefined;
@@ -87,9 +105,16 @@ function getSupabaseUrlFromJwt(token: string | undefined): string | undefined {
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
     const decoded = JSON.parse(Buffer.from(normalized, "base64").toString("utf8")) as {
       iss?: unknown;
+      ref?: unknown;
     };
     const issuer = typeof decoded.iss === "string" ? decoded.iss : undefined;
-    return issuer?.replace(/\/auth\/v1\/?$/, "");
+    const issuerUrl = normalizeSupabaseUrl(issuer?.replace(/\/auth\/v1\/?$/, ""));
+    if (issuerUrl) {
+      return issuerUrl;
+    }
+
+    const ref = typeof decoded.ref === "string" ? decoded.ref : undefined;
+    return ref ? `https://${ref}.supabase.co` : undefined;
   } catch {
     return undefined;
   }
