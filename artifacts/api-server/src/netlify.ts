@@ -44,8 +44,8 @@ const supabase =
     : null;
 
 const supabaseAnon =
-  supabaseUrl && (anonKey || serviceKey)
-    ? createClient(supabaseUrl, anonKey || serviceKey || "", {
+  supabaseUrl && anonKey
+    ? createClient(supabaseUrl, anonKey, {
         auth: { persistSession: false, autoRefreshToken: false },
       })
     : null;
@@ -573,11 +573,26 @@ async function handleAdmin(request: Request, parts: string[]): Promise<Response>
       return json(400, { error: "Email and password required" });
     }
 
-    if (supabaseAnon) {
-      const { data, error } = await supabaseAnon.auth.signInWithPassword({
-        email: loginEmail,
-        password,
+    if (supabaseUrl && !anonKey) {
+      return json(500, {
+        error:
+          "Supabase admin login is missing SUPABASE_ANON_KEY in Netlify environment variables.",
       });
+    }
+
+    if (supabaseAnon) {
+      const { data, error } = await supabaseAnon.auth
+        .signInWithPassword({
+          email: loginEmail,
+          password,
+        })
+        .catch((error: unknown) => ({
+          data: { session: null },
+          error:
+            error instanceof Error
+              ? error
+              : new Error("Supabase authentication request failed"),
+        }));
       if (error || !data.session) {
         return json(401, { error: "Invalid credentials" });
       }
