@@ -645,7 +645,9 @@ async function handleAdmin(request: Request, parts: string[]): Promise<Response>
               : new Error("Supabase authentication request failed"),
         }));
       if (error || !data.session) {
-        return json(401, { error: "Invalid credentials" });
+        return json(401, {
+          error: error?.message || "Invalid login credentials",
+        });
       }
       return json(200, {
         success: true,
